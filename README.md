@@ -1,2 +1,21 @@
-# bhl-as-linked-data
-BHL as linked data
+# BHL as linked data
+
+Experiments to render BHL as linked data.
+
+## IIIF
+
+Use IIIF Presentation API version 3 to model a BHL item. The key idea behind the IIIF model is that there is a virtual page (the “canvas”) which we annotate. **Everything is an annotation**, the page image, the OCR text, etc. This enables us to think about having multiple page images for the same page (e.g, an original scan image, a highly compressed black and white image, etc.), as well as having multiple text annotations (for example, OCR output provided by Internet Archive, as well as more powerful LLM-based tools). We can also have annotations for blocks of text or words, such as taxonomic names. The model allows for different versions of the data.
+
+To explore this idea, we take an Internet Archive scandata.xml file and convert it to a IIIF `manifest.json` file. The canvas (virtual page) dimensions are the cropbox width and height in the scandata file, and we can compute the approximate image sizes for the thumbnails and large WEBP images stored on [AWS](https://registry.opendata.aws/bhl-open-data/) based on standard widths of 150 and 930 pixels, respectively. We can treat OCR text as a canvas-level annotation, and also add smaller annotations (such as location of taxonomic names on a page). The canvas dimensions are the same as page dimensions in the Internet Archive OCR outputs, so we can use those coordinates directly. Note that for LLM-based OCR tools we will may text-based rather than coordinate-based annotations as the output from those tools often has coordinates for blocks of text 9e.g., paragraphs) but not individual words.
+
+### IIIF viewers
+
+In exploring the generated IIIF manifests I used the [Tify](https://tify.rocks) and [Mirador](https://projectmirador.org) viewers, and uncovered a number of limitations and "gotchas”. The dicovery and decsription of the issues below was prepared with the help of Claude Code.
+
+Annotations can refer to the whole canvas, or to a specific region of it. It seems logical for a page-level annotation to target the bare canvas URI, but both viewers mishandle this: if any annotation on a canvas lacks an #xywh fragment, no region overlays are drawn for that canvas at all, including for annotations that do have one (Tify #347 (https://github.com/tify-iiif-viewer/tify/issues/347), Mirador #4532 (https://github.com/ProjectMirador/mirador/issues/4532)). The annotations still appear in the text panel — only the boxes go missing.
+
+There is also an issue with multiple AnnotationPages on the same canvas. Tify reads only the first one and silently ignores the rest (Tify #346 (https://github.com/tify-iiif-viewer/tify/issues/346)), so a canvas that separates, say, comments from OCR text will only ever show one of them. Multiple annotations within a single AnnotationPage work fine.
+
+Most significantly, the notional canvas and the image drawn onto it are separate coordinate spaces. An Internet Archive canvas might be 3600 pixels wide while the large derivative we actually draw from AWS is 930 pixels wide. Both viewers assume the two are the same, so annotation coordinates expressed in canvas units — as the spec requires — are drawn at the wrong scale, in this case 3600/930 ≈ 3.87× too large. The two get it wrong differently: Tify divides by the declared body.width (Tify #348 (https://github.com/tify-iiif-viewer/tify/issues/348)), so declaring the image at canvas dimensions accidentally makes it work, whereas Mirador ignores the declaration entirely and uses the decoded image's true pixel size (Mirador #4533 (https://github.com/ProjectMirador/mirador/issues/4533)), so no manifest-level change helps.
+
+Canvas coordinates are worth persevering with for Internet Archive content, because they match the coordinates in IA's OCR files. The <OBJECT> dimensions in _djvu.xml correspond to the <cropBox> dimensions in _scandata.xml — 3600 × 4831 for the pages above — so annotation coordinates taken straight from the OCR need no transformation to align with the canvas. Scaling them into the derivative's coordinate space would make Mirador render correctly today, but would tie every coordinate to whatever size the derivative happens to be.
