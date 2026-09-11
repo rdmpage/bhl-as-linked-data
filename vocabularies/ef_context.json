@@ -1,0 +1,111 @@
+{
+    "@context" : [
+        "http://schema.org/",
+        {
+            "htrc": "http://wcsa.htrc.illinois.edu/",
+            "schemaVersion": {
+                "@id": "schemaVersion",
+                "@type": "URL"
+            },
+            "htid": {
+                "@id": "htrc:htid",
+                "@type": "Text"
+            },
+            "metadata": "dataFeedElement",
+            "features": "dataFeedElement",
+            "pageCount": {
+                "@id": "htrc:pageCount",
+                "@type": "Integer"
+            },
+            "pages": "htrc:pages",
+            "seq": {
+                "@id": "htrc:seq",
+                "@type": "Integer"
+            },
+            "version": {
+                "@id": "version",
+                "@type": "Text"
+            },
+            "calculatedLanguage": {
+                "@id": "htrc:calculatedLanguage",
+                "@type": "Text"
+            },
+            "tokenCount": {
+                "@id": "htrc:tokenCount",
+                "@type": "Integer"
+            },
+            "lineCount": {
+                "@id": "htrc:lineCount",
+                "@type": "Integer"
+            },
+            "emptyLineCount": {
+                "@id": "htrc:emptyLineCount",
+                "@type": "Integer"
+            },
+            "sentenceCount": {
+                "@id": "htrc:sentenceCount",
+                "@type": "Integer"
+            },
+            "header": "htrc:header",
+            "body": "htrc:body",
+            "footer": "htrc:footer",
+            "tokenPosCount": {
+                "@id": "htrc:tokenPosCount",
+                "@type": "Integer"
+            },
+            "beginCharCount": {
+                "@id": "htrc:beginCharCount",
+                "@type": "Integer"
+            },
+            "endCharCount": {
+                "@id": "htrc:endCharCount",
+                "@type": "Integer"
+            },
+            "capAlphaSeq": {
+                "@id": "htrc:capAlphaSeq",
+                "@type": "Integer"
+            },
+            "title": "htrc:itemName",
+            "journalTitle": "htrc:journalName",
+            "issueTitle": "htrc:issueName",
+            "alternateTitle": "htrc:alternateName",
+            "enumerationChronology": {
+                "@id": "htrc:enumerationChronology",
+                "@type": "Text"
+            },
+            "pubPlace": "locationCreated",
+            "pubDate": "datePublished",
+            "category": "about",
+            "subjects": "htrc:subjects",
+            "language": {
+                "@id": "inLanguage",
+                "@type": "Text"
+            },
+            "accessRights": {
+                "@id": "htrc:accessRights",
+                "@type": "Text"
+            },
+            "accessProfile": {
+                "@id": "htrc:accessProfile",
+                "@type": "Text"
+            },
+            "lastRightsUpdateDate": {
+                "@id": "dateModified",
+                "@type": "Date"
+            },
+            "typeOfResource": "htrc:typeOfResource",
+            "sourceInstitution": {
+                "@id": "provider",
+                "@type": "@id"
+            },
+            "propertyID": {
+                "@id": "propertyID",
+                "@type": "Text"
+            },
+            "oclc": "htrc:oclc",
+            "lccn": "htrc:lccn",
+            "lcc": "htrc:lcc",
+            "doi": "htrc:doi"
+        }
+    ]
+}
