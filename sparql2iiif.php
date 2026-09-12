@@ -102,10 +102,17 @@ function construct_iiif()
 	$sparql = '
 	CONSTRUCT
 	{
-	  # manifest (dummy for now)
+	  # manifest 
 	  ?manifest <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://iiif.io/api/presentation/3#Manifest> .
 
-	  ?manifest <http://iiif.io/api/presentation/3#behavior> <http://iiif.io/api/presentation/3#pagedHint> . 
+	  ?manifest <http://www.w3.org/2000/01/rdf-schema#label> ?title .
+
+	  # behavior: omitted for now, so each viewer uses its own default (both TIFY and Mirador
+	  # open a single page). Uncomment pagedHint for facing-page spreads, or swap it for
+	  # individualsHint to enforce single pages and hide the TIFY double-page toggle. The
+	  # "behavior" context term already has @vocab + @set, so either compacts to a bare string.
+	  # ?manifest <http://iiif.io/api/presentation/3#behavior> <http://iiif.io/api/presentation/3#pagedHint> .
+	  # ?manifest <http://iiif.io/api/presentation/3#behavior> <http://iiif.io/api/presentation/3#individualsHint> .
 
 	  # canvases
 	  ?manifest <http://www.w3.org/ns/activitystreams#items> ?canvas .
@@ -124,10 +131,10 @@ function construct_iiif()
 	  ?canvas <http://www.w3.org/ns/activitystreams#items> ?ap .
 	  ?ap <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/activitystreams#OrderedCollectionPage> .
 
-	  # annotations
+	  # items
 	  ?ap <http://www.w3.org/ns/activitystreams#items> ?a .
 
-	  # annotation
+	  # item
 	  ?a <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/oa#Annotation>  .
 
 	  # paint image on page
@@ -142,18 +149,38 @@ function construct_iiif()
 	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#width> ?thumbnail_width .
 	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#height> ?thumbnail_height .
 	  ?thumbnail <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/StillImage> .
-	  ?thumbnail <http://purl.org/dc/terms/format> "image/webp" .	  
+	  ?thumbnail <http://purl.org/dc/terms/format> "image/webp" .	
 	  
+	  # OCR text
+	  #
+	  # A second AnnotationPage, hung off the canvas with "annotations" rather than "items"
+	  # (items is for the painting annotation that draws the image). The body is the URL of
+	  # the text file on S3 — viewers fetch it lazily, so the OCR never enters the manifest.
+	  ?canvas <http://iiif.io/api/presentation/3#annotations> ?ocr_ap .
+	  ?ocr_ap <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/activitystreams#OrderedCollectionPage> .
+	  ?ocr_ap <http://www.w3.org/ns/activitystreams#items> ?ocr_anno .
+	  ?ocr_anno <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/oa#Annotation> .
+	  ?ocr_anno <https://www.w3.org/ns/oa#motivatedBy> <http://iiif.io/api/presentation/3#supplementing> .
+	  ?ocr_anno <https://www.w3.org/ns/oa#hasBody> ?ocr .
+	  ?ocr <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/Text> .
+	  ?ocr <http://purl.org/dc/terms/format> "text/plain" .
+	  ?ocr_anno <https://www.w3.org/ns/oa#hasTarget> ?canvas .
+
 	}
 	WHERE {
-	  VALUES ?manifest { <https://archive.org/details/Amphibianreptil9A/manifest> }
-	
+	  VALUES ?item { <https://www.biodiversitylibrary.org/item/199416> }
+	  
+	  ?item <https://schema.org/encoding> ?manifest .
+	  ?manifest <https://schema.org/encodingFormat> "application/ld+json" .
+	  
+	  ?item <https://schema.org/name> ?title .
+	  	  
+	  ?page <https://schema.org/isPartOf> ?item .
+	  ?page <https://schema.org/sameAs> ?canvas .
+	  	
 	  ?canvas <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://iiif.io/api/presentation/3#Canvas> .
 	  ?canvas <http://www.w3.org/2003/12/exif/ns#width> ?width .
 	  ?canvas <http://www.w3.org/2003/12/exif/ns#height> ?height .
-
-
-	  ?page <https://schema.org/sameAs> ?canvas .
 
 	  OPTIONAL { ?page <https://schema.org/name> ?label . }
 	  
@@ -162,15 +189,33 @@ function construct_iiif()
 	  ?page <https://schema.org/thumbnailUrl> ?thumbnail .
 	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#width> ?thumbnail_width .
 	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#height> ?thumbnail_height .	  
-	  	  
+	  
+	  
 	  BIND(IRI(CONCAT(STR(?canvas), "/ap1")) AS ?ap)
 	  BIND(IRI(CONCAT(STR(?canvas), "/ap1/a1")) AS ?a)
+
+	  # OCR, if this page has any. The BINDs sit inside the OPTIONAL on purpose: if there is
+	  # no OCR then ?ocr_ap stays unbound and the canvas gets no "annotations" property at
+	  # all. An AnnotationPage with an id but no items would make TIFY treat it as an
+	  # external page and fire a doomed fetch at it.
+	  OPTIONAL {
+	    # ?canvas has to be re-bound in here: an OPTIONAL group is evaluated on its own before
+	    # the left join, so ?canvas from the outer pattern is not visible to the BINDs below and
+	    # CONCAT would silently error, leaving ?ocr_ap unbound.
+	    ?page <https://schema.org/sameAs> ?canvas .
+	    ?page <https://schema.org/encoding> ?ocr .
+	    ?ocr <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/MediaObject> .
+	    ?ocr <https://schema.org/encodingFormat> "text/plain" .
+	    BIND(IRI(CONCAT(STR(?canvas), "/ocr")) AS ?ocr_ap)
+	    BIND(IRI(CONCAT(STR(?canvas), "/ocr/a1")) AS ?ocr_anno)
+	  }
 	}
 	';
 	
 	//$sparql = str_replace('URI', $uri, $sparql);
 	
 	$triples = construct($sparql);
+	
 	
 	// JSON-LD context to create manifest
 	$context = new stdclass;
@@ -223,6 +268,7 @@ function construct_iiif()
 		"@type" => "@vocab"
 	);	
 	$context->painting = "http://iiif.io/api/presentation/3#painting";
+	$context->supplementing = "http://iiif.io/api/presentation/3#supplementing";
 	
 	// behavior needs @vocab AND @set in the *same* term definition: @vocab so pagedHint
 	// compacts to "paged" rather than a node object, @set so a single value still comes out
@@ -238,7 +284,6 @@ function construct_iiif()
 	$context->paged = "http://iiif.io/api/presentation/3#pagedHint";
 	$context->{'non-paged'} = "http://iiif.io/api/presentation/3#nonPagedHint";
 
-
 	$target = new stdclass;
 	$target->{"@type"} = "@id";
 	$target->{"@id"} = "oa:hasTarget";	
@@ -247,6 +292,7 @@ function construct_iiif()
 	// image	
 	$context->format = "http://purl.org/dc/terms/format";
 	$context->Image = "http://purl.org/dc/dcmitype/StillImage";
+	$context->Text = "http://purl.org/dc/dcmitype/Text";
 	
 	// make @id and @type JSON-friendly
 	$context->id = "@id";

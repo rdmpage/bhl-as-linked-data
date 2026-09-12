@@ -1,13 +1,34 @@
 {
     "id": "https://archive.org/details/Amphibianreptil9A/manifest",
     "type": "Manifest",
-    "behavior": [
-        "paged"
-    ],
+    "label": {
+        "none": [
+            "v.9:no.1=no.16(2015)"
+        ]
+    },
     "items": [
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0001",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0001/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0001/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942261-0001.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0001",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0001_thumb.webp",
@@ -42,6 +63,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0002",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0002/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0002/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942260-0002.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0002",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0002_thumb.webp",
@@ -76,6 +116,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0003",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0003/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0003/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942259-0003.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0003",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0003_thumb.webp",
@@ -115,6 +174,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0004",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0004/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0004/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942258-0004.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0004",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0004_thumb.webp",
@@ -154,6 +232,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0005",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0005/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0005/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942257-0005.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0005",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0005_thumb.webp",
@@ -193,6 +290,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0006",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0006/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0006/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942256-0006.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0006",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0006_thumb.webp",
@@ -232,6 +348,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0007",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0007/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0007/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942255-0007.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0007",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0007_thumb.webp",
@@ -271,6 +406,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0008",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0008/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0008/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942254-0008.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0008",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0008_thumb.webp",
@@ -310,6 +464,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0009",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0009/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0009/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942253-0009.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0009",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0009_thumb.webp",
@@ -349,6 +522,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0010",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0010/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0010/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942252-0010.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0010",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0010_thumb.webp",
@@ -388,6 +580,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0011",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0011/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0011/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942251-0011.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0011",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0011_thumb.webp",
@@ -427,6 +638,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0012",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0012/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0012/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942250-0012.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0012",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0012_thumb.webp",
@@ -466,6 +696,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0013",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0013/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0013/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942249-0013.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0013",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0013_thumb.webp",
@@ -505,6 +754,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0014",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0014/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0014/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942248-0014.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0014",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0014_thumb.webp",
@@ -544,6 +812,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0015",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0015/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0015/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942247-0015.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0015",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0015_thumb.webp",
@@ -583,6 +870,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0016",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0016/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0016/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942246-0016.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0016",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0016_thumb.webp",
@@ -622,6 +928,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0017",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0017/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0017/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942245-0017.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0017",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0017_thumb.webp",
@@ -661,6 +986,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0018",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0018/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0018/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942244-0018.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0018",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0018_thumb.webp",
@@ -700,6 +1044,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0019",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0019/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0019/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942243-0019.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0019",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0019_thumb.webp",
@@ -739,6 +1102,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0020",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0020/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0020/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942242-0020.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0020",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0020_thumb.webp",
@@ -778,6 +1160,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0021",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0021/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0021/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942241-0021.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0021",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0021_thumb.webp",
@@ -817,6 +1218,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0022",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0022/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0022/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942240-0022.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0022",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0022_thumb.webp",
@@ -856,6 +1276,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0023",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0023/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0023/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942239-0023.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0023",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0023_thumb.webp",
@@ -895,6 +1334,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0024",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0024/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0024/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942238-0024.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0024",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0024_thumb.webp",
@@ -934,6 +1392,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0025",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0025/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0025/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942237-0025.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0025",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0025_thumb.webp",
@@ -973,6 +1450,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0026",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0026/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0026/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942236-0026.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0026",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0026_thumb.webp",
@@ -1012,6 +1508,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0027",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0027/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0027/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942235-0027.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0027",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0027_thumb.webp",
@@ -1051,6 +1566,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0028",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0028/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0028/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942234-0028.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0028",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0028_thumb.webp",
@@ -1090,6 +1624,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0029",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0029/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0029/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942233-0029.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0029",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0029_thumb.webp",
@@ -1129,6 +1682,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0030",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0030/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0030/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942232-0030.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0030",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0030_thumb.webp",
@@ -1168,6 +1740,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0031",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0031/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0031/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942231-0031.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0031",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0031_thumb.webp",
@@ -1207,6 +1798,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0032",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0032/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0032/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942230-0032.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0032",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0032_thumb.webp",
@@ -1246,6 +1856,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0033",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0033/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0033/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942229-0033.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0033",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0033_thumb.webp",
@@ -1285,6 +1914,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0034",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0034/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0034/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942228-0034.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0034",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0034_thumb.webp",
@@ -1324,6 +1972,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0035",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0035/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0035/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942227-0035.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0035",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0035_thumb.webp",
@@ -1363,6 +2030,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0036",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0036/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0036/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942226-0036.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0036",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0036_thumb.webp",
@@ -1402,6 +2088,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0037",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0037/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0037/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942225-0037.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0037",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0037_thumb.webp",
@@ -1441,6 +2146,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0038",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0038/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0038/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942224-0038.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0038",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0038_thumb.webp",
@@ -1480,6 +2204,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0039",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0039/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0039/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942223-0039.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0039",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0039_thumb.webp",
@@ -1519,6 +2262,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0040",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0040/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0040/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942222-0040.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0040",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0040_thumb.webp",
@@ -1558,6 +2320,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0041",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0041/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0041/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942221-0041.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0041",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0041_thumb.webp",
@@ -1597,6 +2378,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0042",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0042/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0042/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942220-0042.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0042",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0042_thumb.webp",
@@ -1636,6 +2436,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0043",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0043/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0043/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942219-0043.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0043",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0043_thumb.webp",
@@ -1675,6 +2494,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0044",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0044/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0044/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942218-0044.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0044",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0044_thumb.webp",
@@ -1714,6 +2552,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0045",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0045/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0045/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942217-0045.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0045",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0045_thumb.webp",
@@ -1753,6 +2610,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0046",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0046/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0046/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942216-0046.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0046",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0046_thumb.webp",
@@ -1792,6 +2668,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0047",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0047/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0047/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942215-0047.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0047",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0047_thumb.webp",
@@ -1831,6 +2726,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0048",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0048/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0048/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942214-0048.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0048",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0048_thumb.webp",
@@ -1870,6 +2784,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0049",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0049/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0049/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942213-0049.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0049",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0049_thumb.webp",
@@ -1909,6 +2842,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0050",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0050/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0050/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942212-0050.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0050",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0050_thumb.webp",
@@ -1948,6 +2900,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0051",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0051/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0051/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942211-0051.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0051",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0051_thumb.webp",
@@ -1987,6 +2958,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0052",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0052/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0052/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942210-0052.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0052",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0052_thumb.webp",
@@ -2026,6 +3016,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0053",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0053/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0053/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942209-0053.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0053",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0053_thumb.webp",
@@ -2065,6 +3074,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0054",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0054/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0054/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942208-0054.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0054",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0054_thumb.webp",
@@ -2104,6 +3132,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0055",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0055/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0055/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942175-0055.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0055",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0055_thumb.webp",
@@ -2143,6 +3190,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0056",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0056/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0056/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942176-0056.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0056",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0056_thumb.webp",
@@ -2182,6 +3248,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0057",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0057/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0057/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942177-0057.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0057",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0057_thumb.webp",
@@ -2221,6 +3306,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0058",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0058/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0058/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942178-0058.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0058",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0058_thumb.webp",
@@ -2260,6 +3364,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0059",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0059/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0059/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942179-0059.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0059",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0059_thumb.webp",
@@ -2299,6 +3422,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0060",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0060/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0060/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942180-0060.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0060",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0060_thumb.webp",
@@ -2338,6 +3480,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0061",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0061/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0061/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942181-0061.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0061",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0061_thumb.webp",
@@ -2377,6 +3538,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0062",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0062/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0062/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942182-0062.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0062",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0062_thumb.webp",
@@ -2416,6 +3596,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0063",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0063/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0063/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942183-0063.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0063",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0063_thumb.webp",
@@ -2455,6 +3654,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0064",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0064/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0064/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942184-0064.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0064",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0064_thumb.webp",
@@ -2494,6 +3712,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0065",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0065/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0065/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942185-0065.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0065",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0065_thumb.webp",
@@ -2533,6 +3770,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0066",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0066/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0066/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942186-0066.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0066",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0066_thumb.webp",
@@ -2572,6 +3828,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0067",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0067/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0067/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942187-0067.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0067",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0067_thumb.webp",
@@ -2611,6 +3886,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0068",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0068/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0068/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942188-0068.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0068",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0068_thumb.webp",
@@ -2650,6 +3944,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0069",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0069/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0069/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942189-0069.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0069",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0069_thumb.webp",
@@ -2689,6 +4002,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0070",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0070/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0070/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942190-0070.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0070",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0070_thumb.webp",
@@ -2728,6 +4060,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0071",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0071/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0071/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942191-0071.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0071",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0071_thumb.webp",
@@ -2767,6 +4118,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0072",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0072/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0072/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942192-0072.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0072",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0072_thumb.webp",
@@ -2806,6 +4176,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0073",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0073/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0073/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942193-0073.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0073",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0073_thumb.webp",
@@ -2845,6 +4234,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0074",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0074/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0074/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942194-0074.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0074",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0074_thumb.webp",
@@ -2884,6 +4292,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0075",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0075/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0075/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942195-0075.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0075",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0075_thumb.webp",
@@ -2923,6 +4350,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0076",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0076/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0076/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942196-0076.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0076",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0076_thumb.webp",
@@ -2962,6 +4408,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0077",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0077/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0077/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942197-0077.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0077",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0077_thumb.webp",
@@ -3001,6 +4466,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0078",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0078/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0078/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942198-0078.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0078",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0078_thumb.webp",
@@ -3040,6 +4524,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0079",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0079/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0079/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942199-0079.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0079",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0079_thumb.webp",
@@ -3079,6 +4582,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0080",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0080/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0080/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942200-0080.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0080",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0080_thumb.webp",
@@ -3118,6 +4640,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0081",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0081/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0081/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942201-0081.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0081",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0081_thumb.webp",
@@ -3157,6 +4698,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0082",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0082/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0082/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942202-0082.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0082",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0082_thumb.webp",
@@ -3196,6 +4756,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0083",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0083/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0083/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942203-0083.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0083",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0083_thumb.webp",
@@ -3235,6 +4814,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0084",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0084/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0084/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942204-0084.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0084",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0084_thumb.webp",
@@ -3274,6 +4872,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0085",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0085/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0085/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942205-0085.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0085",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0085_thumb.webp",
@@ -3313,6 +4930,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0086",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0086/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0086/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942206-0086.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0086",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0086_thumb.webp",
@@ -3352,6 +4988,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0087",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0087/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0087/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942207-0087.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0087",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0087_thumb.webp",
@@ -3391,6 +5046,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0088",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0088/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0088/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942262-0088.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0088",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0088_thumb.webp",
@@ -3430,6 +5104,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0089",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0089/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0089/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942263-0089.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0089",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0089_thumb.webp",
@@ -3469,6 +5162,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0090",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0090/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0090/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942264-0090.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0090",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0090_thumb.webp",
@@ -3508,6 +5220,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0091",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0091/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0091/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942265-0091.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0091",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0091_thumb.webp",
@@ -3547,6 +5278,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0092",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0092/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0092/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942266-0092.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0092",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0092_thumb.webp",
@@ -3586,6 +5336,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0093",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0093/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0093/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942267-0093.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0093",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0093_thumb.webp",
@@ -3625,6 +5394,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0094",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0094/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0094/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942268-0094.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0094",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0094_thumb.webp",
@@ -3664,6 +5452,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0095",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0095/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0095/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942269-0095.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0095",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0095_thumb.webp",
@@ -3703,6 +5510,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0096",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0096/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0096/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942270-0096.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0096",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0096_thumb.webp",
@@ -3742,6 +5568,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0097",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0097/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0097/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942271-0097.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0097",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0097_thumb.webp",
@@ -3781,6 +5626,25 @@
         {
             "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0098",
             "type": "Canvas",
+            "annotations": [
+                {
+                    "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0098/ocr",
+                    "type": "AnnotationPage",
+                    "items": [
+                        {
+                            "id": "https://archive.org/details/Amphibianreptil9A/canvas/p0098/ocr/a1",
+                            "type": "Annotation",
+                            "body": {
+                                "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/ocr/item-199416/item-199416-49942272-0098.txt",
+                                "type": "Text",
+                                "format": "text/plain"
+                            },
+                            "target": "https://archive.org/details/Amphibianreptil9A/canvas/p0098",
+                            "motivation": "supplementing"
+                        }
+                    ]
+                }
+            ],
             "thumbnail": [
                 {
                     "id": "https://bhl-open-data.s3.us-east-2.amazonaws.com/web/Amphibianreptil9A/Amphibianreptil9A_0098_thumb.webp",

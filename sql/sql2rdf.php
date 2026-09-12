@@ -7,10 +7,37 @@ error_reporting(E_ALL);
 require_once(dirname(dirname(__FILE__)) . '/shared.php');
 require_once (dirname(__FILE__) . '/sqlite.php');
 
+
+//----------------------------------------------------------------------------------------
+function create_encoding_triples(&$triples, $work, $encoding, $mime_type)
+{
+	$s = $work;
+	$p = 'https://schema.org/encoding';
+	$o = $encoding;		
+	$triples[] = [$s, $p, $o];	
+	
+	$s = $encoding;
+	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+	$o = 'https://schema.org/MediaObject';		
+	$triples[] = [$s, $p, $o];	
+
+	$s = $encoding;
+	$p = 'https://schema.org/contentUrl';	
+	$o = $encoding;		
+	$triples[] = [$s, $p, $o];	
+
+	$s = $encoding;
+	$p = 'https://schema.org/encodingFormat';	
+	$o = '"' . nice_literal($mime_type) . '"';		
+	$triples[] = [$s, $p, $o];	
+}
+
 //----------------------------------------------------------------------------------------
 // Get item
 function get_item ($ItemID )
 {
+	global $config;
+	
 	// get individual item
 	$sql = 'SELECT DISTINCT ItemID, VolumeInfo, TitleID, ThumbnailPageID, Year, InstitutionName, CopyrightStatus, BarCode
 	FROM item';
@@ -20,72 +47,122 @@ function get_item ($ItemID )
 	
 	print_r($data);
 	
-	$obj = null;
+	$item = null;
 	
 	foreach ($data as $row)
 	{	
-		if (!$obj)
+		if (!$item)
 		{
-			$obj = new stdclass;
+			$item = new stdclass;
 		
-			$obj->id = $row->ItemID;
+			$item->id = $config['bhl'] . '/item/' . $row->ItemID;
 			
 			if (isset($row->VolumeInfo))
 			{		
-				$obj->name = $row->VolumeInfo;
+				$item->name = $row->VolumeInfo;
 				
 				// to do: can we parse this more accurately than BHL?
 			}
 			else
 			{
-				$obj->name = '[Untitled]';
+				$item->name = '[' . $row->BarCode . ']';
 			}
 				
-			$obj->isPartOf = $row->TitleID;
+			$item->isPartOf = $config['bhl'] . '/bibliography/' . $row->TitleID;
 			
 			if (isset($row->ThumbnailPageID))
 			{
-				$obj->thumbnail = $row->ThumbnailPageID;
+				$item->thumbnail = $row->ThumbnailPageID;
 			}
 			
 			if (isset($row->Year))
 			{
-				$obj->year = $row->Year;
+				$item->year = $row->Year;
 			}
 		
 			if (isset($row->InstitutionName))
 			{
-				$obj->provider = $row->InstitutionName;
+				$item->provider = $row->InstitutionName;
 			}
 			
 			if (isset($row->CopyrightStatus))
 			{
-				$obj->copyrightNotice = $row->CopyrightStatus;
+				$item->copyrightNotice = $row->CopyrightStatus;
 			}
 		
 			// to do, maybe change this?
 			if (isset($row->BarCode))
 			{
-				$obj->barcode = $row->BarCode;
+				$item->barcode = $row->BarCode;
 			}
 		}
 		else
 		{
-			if (!is_array($obj->isPartOf))
+			// link to any other items it is a part of
+			if (!is_array($item->isPartOf))
 			{
-				$obj->isPartOf = [$obj->isPartOf];
+				$item->isPartOf = [$item->isPartOf];
 			}
-			$obj->isPartOf[] = $row->TitleID;
-		
+			$item->isPartOf[] = $row->TitleID;		
 		}
 	}
 	
-	print_r($obj);	
+	print_r($item);	
 	
 	// triples
+		
+	$triples = [];
 	
-	// consier creating sameas or encoding lin to IIIF manifest, 
-	// and link name of item to manifest
+	// creative work
+	$s = $item->id;
+	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+	$o = 'https://schema.org/CreativeWork';		
+	$triples[] = [$s, $p, $o];	
+
+	// name
+	$s = $item->id;
+	$p = 'https://schema.org/name';
+	$o = '"' . nice_literal($item->name) . '"';		
+	$triples[] = [$s, $p, $o];	
+	
+	$s = $item->id;
+	$p = 'https://schema.org/sameAs';
+	$o = 'https://archive.org/details/' . $item->barcode;		
+	$triples[] = [$s, $p, $o];	
+	
+	$s = $item->id;
+	$p = 'https://schema.org/isPartOf';
+	$o = $item->isPartOf;		
+	$triples[] = [$s, $p, $o];	
+	
+
+	if (isset($item->provider))
+	{
+		$s = $item->id;
+		$p = 'https://schema.org/provider';
+		$o = '"' . nice_literal($item->provider) . '"';		
+		$triples[] = [$s, $p, $o];	
+	}
+
+	if (isset($item->copyrightNotice))
+	{
+		$s = $item->id;
+		$p = 'https://schema.org/copyrightNotice';
+		$o = '"' . nice_literal($item->copyrightNotice) . '"';		
+		$triples[] = [$s, $p, $o];	
+	}
+	
+	// content
+	// IIIF	
+	$canvas = 'https://archive.org/details/' . $item->barcode . "/manifest";	
+	create_encoding_triples($triples, $item->id, $canvas, "application/ld+json");
+
+	$pdf = $config['bhl'] . '/itempdf/' . $ItemID;
+	create_encoding_triples($triples, $item->id, $pdf, "application/pdf");
+			
+	$output = dump_triples($triples);			
+	echo $output . "\n";
+
 }
 
 //----------------------------------------------------------------------------------------
@@ -179,7 +256,13 @@ function get_item_pages($ItemID = null)
 		$triples[] = [$s, $p, $o];	
 		
 		// to do: link to parent item
-		
+
+		// isPartOf an item, think about whether we want datafeed as well
+		$s = $page->id;
+		$p = 'https://schema.org/isPartOf';
+		$o = $config['bhl'] . '/item/' . $ItemID;
+		$triples[] = [$s, $p, $o];	
+	
 		// page name
 		if (isset($page->name))
 		{
@@ -219,11 +302,16 @@ function get_item_pages($ItemID = null)
 		$o = $page->image;		
 		$triples[] = [$s, $p, $o];	
 		
+		/*
 		// according the schema.org this should really be text, not a URL, but what can you do...?
 		$s = $page->id;
 		$p = 'https://schema.org/text';
 		$o = $page->text;		
-		$triples[] = [$s, $p, $o];	
+		$triples[] = [$s, $p, $o];
+		*/
+		
+		create_encoding_triples($triples, $page->id, $page->text, "text/plain");
+			
 	}
 	
 	$output = dump_triples($triples);			
@@ -233,8 +321,8 @@ function get_item_pages($ItemID = null)
 $ItemID = 281611; // Monograph/Icones P no or little OCR in BHL!
 $ItemID = 199416; // frogs peru
 
-//get_item($ItemID );
-get_item_pages($ItemID );
+get_item($ItemID );
+//get_item_pages($ItemID );
 
 ?>
 

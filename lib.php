@@ -116,7 +116,10 @@ function oxigraph_query($sparql)
 {
 	global $config;
 	
-	$data = 'query=' . $sparql;
+	// urlencode: the body is application/x-www-form-urlencoded, so a raw "+" in the query
+	// (e.g. the literal "application/ld+json") would arrive decoded as a space and silently
+	// match nothing. Same for & and % in literals.
+	$data = 'query=' . urlencode($sparql);
 	
 	$json = post(
 		$config['sparql_endpoint'],
@@ -155,7 +158,10 @@ function oxigraph_construct($sparql)
 {
 	global $config;
 	
-	$data = 'query=' . $sparql;
+	// urlencode: the body is application/x-www-form-urlencoded, so a raw "+" in the query
+	// (e.g. the literal "application/ld+json") would arrive decoded as a space and silently
+	// match nothing. Same for & and % in literals.
+	$data = 'query=' . urlencode($sparql);
 	
 	$triples = post(
 		$config['sparql_endpoint'],
