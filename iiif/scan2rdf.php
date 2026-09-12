@@ -6,7 +6,7 @@ require_once(dirname(dirname(__FILE__)) . '/shared.php');
 
 $filename = 'scandata/europeanjournal4muse_scandata.xml';
 $filename = 'scandata/generainsectorum9810wyts_scandata.xml';
-$filename = 'scandata/Amphibianreptil9A_scandata.xml';
+$filename = dirname(__FILE__) . '/scandata/Amphibianreptil9A_scandata.xml';
 //$filename = 'scandata/bihangtillkongls284kung_scandata.xml';
 
 {

@@ -83,6 +83,9 @@ function get_item ($ItemID )
 	print_r($obj);	
 	
 	// triples
+	
+	// consier creating sameas or encoding lin to IIIF manifest, 
+	// and link name of item to manifest
 }
 
 //----------------------------------------------------------------------------------------
@@ -136,7 +139,7 @@ function get_item_pages($ItemID = null)
 		}
 		
 		// Canvas
-		$pages[$row->PageID]->sameAs = $config['ia'] . "/" . $row->BarCode . "/canvas/p" . str_pad($row->SequenceOrder, 4, '0', STR_PAD_LEFT);
+		$pages[$row->PageID]->canvas = $config['ia'] . "/" . $row->BarCode . "/canvas/p" . str_pad($row->SequenceOrder, 4, '0', STR_PAD_LEFT);
 		
 		// OCR text
 		$pages[$row->PageID]->text = $config['aws'] . "/ocr/item-" . str_pad($row->ItemID, 6, '0', STR_PAD_LEFT) 
@@ -177,23 +180,33 @@ function get_item_pages($ItemID = null)
 		
 		// to do: link to parent item
 		
-		
+		// page name
+		if (isset($page->name))
+		{
+			$s = $page->id;
+			$p = 'https://schema.org/name';
+			$o = '"' . nice_literal($page->name) . '"';
+			$triples[] = [$s, $p, $o];	
+		}
+						
 		// a page is the same as an IIIF canvas
 		$s = $page->id;
 		$p = 'https://schema.org/sameAs';
-		$o = $page->sameAs;
+		$o = $page->canvas;
 		$triples[] = [$s, $p, $o];	
 		
-		$s = $page->sameAs;
+		$s = $page->canvas;
 		$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 		$o = 'http://iiif.io/api/presentation/3#Canvas';		
 		$triples[] = [$s, $p, $o];	
-				
+		
+		/*		
 		// canvas has a position (they are ordered)
-		$s = $page->sameAs;
+		$s = $page->canvas;
 		$p = 'https://schema.org/position';
 		$o = '"' . $page->position . '"^^<http://www.w3.org/2001/XMLSchema#integer>';		
 		$triples[] = [$s, $p, $o];	
+		*/
 						
 		// store media links
 		$s = $page->id;

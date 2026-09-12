@@ -102,13 +102,13 @@ function construct_iiif()
 	$sparql = '
 	CONSTRUCT
 	{
-	  # manifest
-	  <https://archive.org/details/Amphibianreptil9A> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://iiif.io/api/presentation/3#Manifest> .
+	  # manifest (dummy for now)
+	  ?manifest <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://iiif.io/api/presentation/3#Manifest> .
 
-	  <https://archive.org/details/Amphibianreptil9A> <http://iiif.io/api/presentation/3#behavior> <http://iiif.io/api/presentation/3#pagedHint> . 
+	  ?manifest <http://iiif.io/api/presentation/3#behavior> <http://iiif.io/api/presentation/3#pagedHint> . 
 
 	  # canvases
-	  <https://archive.org/details/Amphibianreptil9A>  <http://www.w3.org/ns/activitystreams#items> ?canvas .
+	  ?manifest <http://www.w3.org/ns/activitystreams#items> ?canvas .
 
 	  # canvas
 	  ?canvas <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://iiif.io/api/presentation/3#Canvas> .
@@ -146,14 +146,17 @@ function construct_iiif()
 	  
 	}
 	WHERE {
+	  VALUES ?manifest { <https://archive.org/details/Amphibianreptil9A/manifest> }
+	
 	  ?canvas <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://iiif.io/api/presentation/3#Canvas> .
 	  ?canvas <http://www.w3.org/2003/12/exif/ns#width> ?width .
 	  ?canvas <http://www.w3.org/2003/12/exif/ns#height> ?height .
 
-	  # OPTIONAL so a canvas with no label is still included
-	  OPTIONAL { ?canvas <http://www.w3.org/2000/01/rdf-schema#label> ?label . }
 
 	  ?page <https://schema.org/sameAs> ?canvas .
+
+	  OPTIONAL { ?page <https://schema.org/name> ?label . }
+	  
 	  ?page <https://schema.org/image> ?image .
 	  
 	  ?page <https://schema.org/thumbnailUrl> ?thumbnail .

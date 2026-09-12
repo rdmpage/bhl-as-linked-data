@@ -1,5 +1,5 @@
 {
-    "id": "https://archive.org/details/Amphibianreptil9A",
+    "id": "https://archive.org/details/Amphibianreptil9A/manifest",
     "type": "Manifest",
     "behavior": [
         "paged"
@@ -85,6 +85,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 1"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -119,6 +124,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 2"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -153,6 +163,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 3"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -187,6 +202,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 4"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -221,6 +241,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 5"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -255,6 +280,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 6"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -289,6 +319,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 7"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -323,6 +358,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 8"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -357,6 +397,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 9"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -391,6 +436,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 10"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -425,6 +475,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 11"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -459,6 +514,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 12"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -493,6 +553,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 13"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -527,6 +592,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 14"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -561,6 +631,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 15"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -595,6 +670,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 16"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -629,6 +709,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 17"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -663,6 +748,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 18"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -697,6 +787,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 19"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -731,6 +826,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 20"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -765,6 +865,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 21"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -799,6 +904,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 22"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -833,6 +943,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 23"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -867,6 +982,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 24"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -901,6 +1021,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 25"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -935,6 +1060,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 26"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -969,6 +1099,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 27"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1003,6 +1138,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 28"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1037,6 +1177,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 29"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1071,6 +1216,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 30"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1105,6 +1255,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 31"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1139,6 +1294,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 32"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1173,6 +1333,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 33"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1207,6 +1372,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 34"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1241,6 +1411,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 35"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1275,6 +1450,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 36"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1309,6 +1489,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 37"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1343,6 +1528,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 38"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1377,6 +1567,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 39"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1411,6 +1606,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 40"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1445,6 +1645,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 41"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1479,6 +1684,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 42"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1513,6 +1723,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 43"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1547,6 +1762,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 44"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1581,6 +1801,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 1"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1615,6 +1840,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 2"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1649,6 +1879,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 3"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1683,6 +1918,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 4"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1717,6 +1957,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 5"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1751,6 +1996,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 6"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1785,6 +2035,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 7"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1819,6 +2074,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 8"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1853,6 +2113,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 9"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1887,6 +2152,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 10"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1921,6 +2191,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 11"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1955,6 +2230,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 12"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -1989,6 +2269,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 13"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2023,6 +2308,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 14"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2057,6 +2347,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 15"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2091,6 +2386,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 16"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2125,6 +2425,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 17"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2159,6 +2464,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 18"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2193,6 +2503,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 19"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2227,6 +2542,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 20"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2261,6 +2581,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 21"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2295,6 +2620,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 22"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2329,6 +2659,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 23"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2363,6 +2698,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 24"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2397,6 +2737,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 25"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2431,6 +2776,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 26"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2465,6 +2815,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 27"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2499,6 +2854,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 28"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2533,6 +2893,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 29"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2567,6 +2932,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 30"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2601,6 +2971,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 31"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2635,6 +3010,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 32"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2669,6 +3049,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 33"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2703,6 +3088,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 34"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2737,6 +3127,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 35"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2771,6 +3166,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 36"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2805,6 +3205,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 37"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2839,6 +3244,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 38"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2873,6 +3283,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 39"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2907,6 +3322,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 40"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2941,6 +3361,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 41"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -2975,6 +3400,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 42"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3009,6 +3439,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 43"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3043,6 +3478,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 44"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3077,6 +3517,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 45"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3111,6 +3556,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 46"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3145,6 +3595,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 47"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3179,6 +3634,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 48"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3213,6 +3673,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 49"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3247,6 +3712,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 50"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3281,6 +3751,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 51"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
@@ -3315,6 +3790,11 @@
                     "width": 150
                 }
             ],
+            "label": {
+                "none": [
+                    "Page 52"
+                ]
+            },
             "height": 4831,
             "width": 3600,
             "items": [
