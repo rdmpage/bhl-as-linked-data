@@ -44,20 +44,27 @@ $filename = 'scandata/Amphibianreptil9A_scandata.xml';
     
     $manifest->rendering = [$rendering];
 		
-	// table of contents (hard-coded for Amphibianreptil9A)
-	$range = new stdclass;
-	$range->id = $manifest->id . "/range/1";
-	$range->type = "Range";
-	$range->label = "Noblella lynchi Duellman 1991 (Anura: Craugastoridae):
-Geographic range extension, Peru";
-
-	$item = new stdclass;
-	$item->id = "https://archive.org/details/Amphibianreptil9A/canvas/p0014";
-	$item->type = "Canvas";
-
-	$range->items[] = $item;
+	if ($id == 'Amphibianreptil9A_scandata')
+	{
+		// table of contents (hard-coded for Amphibianreptil9A)
+		
+		// an article is a range
+		$range = new stdclass;
+		$range->id = $manifest->id . "/range/1";
+		$range->type = "Range";
+		$range->label = "Noblella lynchi Duellman 1991 (Anura: Craugastoridae): Geographic range extension, Peru";
 	
-	$manifest->structures[] = $range;
+		// Article starts with this canvas 
+		$item = new stdclass;
+		$item->id = "https://archive.org/details/Amphibianreptil9A/canvas/p0014";
+		$item->type = "Canvas";
+	
+		// Add canvas to range (could add all pages in article)
+		$range->items[] = $item;
+		
+		// Add this range to list of structures
+		$manifest->structures[] = $range;
+	}
 	
 	$leaf_counter = 0;
 		

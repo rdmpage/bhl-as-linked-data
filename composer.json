@@ -1,0 +1,12 @@
+{
+    "name": "rpage/bhl-as-linked-data",
+    "require": {
+        "ml/json-ld": "^1.2"
+    },
+    "authors": [
+        {
+            "name": "Roderic Page",
+            "email": "rdmpage@gmail.com"
+        }
+    ]
+}
