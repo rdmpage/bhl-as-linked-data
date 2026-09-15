@@ -197,7 +197,7 @@ function get_title($TitleID)
 	
 		// DataFeedItem
 		$s = $title->id;
-		$p = 'https://schema.org/dateFeedElement';
+		$p = 'https://schema.org/dataFeedElement';
 		$o = $list_item_id;
 		$triples[] = [$s, $p, $o];
 		
@@ -447,7 +447,7 @@ function get_item_pages($ItemID = null)
 	
 		// DataFeedItem
 		$s = $item_id;
-		$p = 'https://schema.org/dateFeedElement';
+		$p = 'https://schema.org/dataFeedElement';
 		$o = $list_item_id;
 		$triples[] = [$s, $p, $o];
 		
@@ -514,6 +514,33 @@ function get_item_pages($ItemID = null)
 	
 	$output = dump_triples($triples);			
 	echo $output . "\n";
+}
+
+//----------------------------------------------------------------------------------------
+// Get list of parts for an item
+function get_item_parts($ItemID)
+{
+	// list of items for a title
+	$sql = 'SELECT PartID FROM part 
+	WHERE ItemID='. $ItemID . '
+	ORDER BY CAST(part.SequenceOrder AS INTEGER)';
+	
+	$data = db_get($sql);
+	
+	// print_r($data);
+	
+	$parts = array();
+	
+	foreach ($data as $row)
+	{
+		$part = get_part($row->PartID);
+		if ($part)
+		{
+			$parts[] = $part;
+		}
+	}
+	
+	return $parts;
 }
 
 
@@ -593,24 +620,6 @@ function get_part($PartID)
 			
 			$part->identifier[$row->IdentifierName][] = $row->IdentifierValue;
 		}
-
-		/*
-           [ContainerTitle] => Memoirs of Museum Victoria
-            [PublicationDetails] => Melbourne : Museum Victoria , 1999-2010
-            [Volume] => 61
-            [Date] => 2004
-            [PageRange] => 47--55
-            [StartPageID] => 48951678
-            [SegmentUrl] => https://www.biodiversitylibrary.org/part/175696
-            [RightsStatus] => In copyright. Digitized with the permission of the rights holder.
-            [RightsStatement] => https://biodiversitylibrary.org/permissions
-            [LicenseUrl] => http://creativecommons.org/licenses/by-nc-sa/4.0/
-            [RightsHolder] => Museums Victoria
-            [IdentifierName] => BioStor
-            [IdentifierValue] => 167448
-            [CreationDate] => 2016-07-25 05:39
- 
-		*/
 	}
 	
 	// DOI?
@@ -637,8 +646,7 @@ function get_part($PartID)
 		$part->creator[] = $row->CreatorID;
 	}
 	
-	// pages
-	// Item pages
+	// part pages
 	$sql = 'SELECT PageID, SequenceOrder FROM partpage WHERE PartID=' . $PartID;	
 	$sql .= ' ORDER BY CAST(SequenceOrder AS INTEGER)';
 	
@@ -652,8 +660,6 @@ function get_part($PartID)
 	{
 		$pages[$row->SequenceOrder] = $row->PageID;
 	}
-
-	//print_r($part);
 
 	$triples = [];
 	
@@ -710,14 +716,24 @@ function get_part($PartID)
 	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 	$o = 'https://schema.org/DataFeed';		
 	$triples[] = [$s, $p, $o];	
-
+	
+	// position in item
+	if (isset($part->position))
+	{
+		$s = $part->id;
+		$p = 'https://schema.org/position';
+		$o = '"' . $part->position . '"^^<http://www.w3.org/2001/XMLSchema#integer>';		
+		$triples[] = [$s, $p, $o];	
+	}		
+	
 	// title
 	$s = $part->id;
 	$p = 'https://schema.org/name';
 	$o = '"' . nice_literal($part->name) . '"';
 	$triples[] = [$s, $p, $o];	
 	
-	// other bibliographic details...? we sorta break schema's model if we have volume and issue
+	// other bibliographic details...? careful, we sorta break schema's model 
+	// if we have volume and issue
 	if (isset($part->pagination))
 	{
 		$s = $part->id;
@@ -757,6 +773,7 @@ function get_part($PartID)
 		$triples[] = [$s, $p, $o];			
 	}
 	
+	// date
 	if (isset($part->date))
 	{
 		create_date($triples, $part->date, $part->id, 'https://schema.org/datePublished');
@@ -771,8 +788,6 @@ function get_part($PartID)
 		$triples[] = [$s, $p, $o];			
 	}
 	
-	// print_r($pages);
-	
 	// note that we need DataFeedItems as list elements because
 	// the position of a page in the list is a property of the list element,
 	// not the page, otherwise we end up with multiple positions assigned to
@@ -782,7 +797,7 @@ function get_part($PartID)
 		$list_item_id = $part->id . '/page/' . str_pad($position, 4, '0', STR_PAD_LEFT);
 	
 		$s = $part->id;
-		$p = 'https://schema.org/dateFeedElement';
+		$p = 'https://schema.org/dataFeedElement';
 		$o = $list_item_id;
 		$triples[] = [$s, $p, $o];
 
@@ -835,7 +850,7 @@ if (0)
 	
 }
 
-if (1)
+if (0)
 {
 	$PartID = 178769;
 	$PartID = 175696;
@@ -850,7 +865,7 @@ if (1)
 	
 }	
 
-if (0)
+if (1)
 {
 	$ItemID = 223011;
 	get_item($ItemID);
@@ -860,6 +875,14 @@ if (0)
 	get_item_pages($ItemID);
 	
 	echo "\n\n";
+	
+	$parts = get_item_parts($ItemID);
+	
+	foreach ($parts as $PartID)
+	{
+		get_part($PartID);
+		echo "\n\n";
+	}
 	
 	
 }
