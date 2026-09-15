@@ -7,6 +7,38 @@ error_reporting(E_ALL);
 require_once(dirname(dirname(__FILE__)) . '/shared.php');
 require_once (dirname(__FILE__) . '/sqlite.php');
 
+//----------------------------------------------------------------------------------------
+// take ISO date and convert to typed date
+function create_date(&$triples, $date_string, $subject_uri, $predicate_uri = 'https://schema.org/datePublished')
+{
+	$datetype = 'date';
+	
+	$d = explode("-", $date_string);
+
+	if ( count($d) > 0 ) $year = $d[0] ;
+	if ( count($d) > 1 ) $month = preg_replace ( '/^0+(..)$/' , '$1' , '00'.$d[1] ) ;
+	if ( count($d) > 2 ) $day = preg_replace ( '/^0+(..)$/' , '$1' , '00'.$d[2] ) ;
+	if ( isset($month) and isset($day) )
+	{
+		$date     = "$year-$month-$day";
+		$datetype = 'date';
+	}
+	else if ( isset($month) )
+	{
+		$date     = "$year-$month";
+		$datetype = 'gYearMonth';				
+	}
+	else if ( isset($year) ) 
+	{
+		$date     = "$year";
+		$datetype = 'gYear';	
+	}
+	
+	$s = $subject_uri;
+	$p = $predicate_uri;	
+	$o = '"' . $date . '"^^<http://www.w3.org/2001/XMLSchema#' . $datetype . '>';	
+	$triples[] = [$s, $p, $o];	
+}
 
 //----------------------------------------------------------------------------------------
 function create_encoding_triples(&$triples, $work, $encoding, $mime_type)
@@ -33,6 +65,161 @@ function create_encoding_triples(&$triples, $work, $encoding, $mime_type)
 }
 
 //----------------------------------------------------------------------------------------
+// Get list of items for a title
+function get_items_for_title($TitleID)
+{
+	// list of items for a title
+	$sql = 'SELECT DISTINCT ItemID FROM item 
+	WHERE TitleID='. $TitleID . '
+	ORDER BY item.year, item.VolumeInfo';
+		
+	$data = db_get($sql);
+	
+	//print_r($data);
+	
+	$items = array();
+	
+	$position = 1;
+	
+	foreach ($data as $row)
+	{
+		$items[$row->ItemID] = $position++;
+	}
+	
+	return $items;
+}
+
+//----------------------------------------------------------------------------------------
+// Get details of a title
+function get_title($TitleID)
+{
+	global $config;
+	
+	// title and identifiers
+	$sql = 'SELECT * FROM title 
+	LEFT OUTER JOIN titleidentifier USING(TitleID)
+	WHERE TitleID='. $TitleID;
+	
+	$data = db_get($sql);
+	
+	$title = new stdclass;
+	
+	foreach ($data as $row)
+	{
+		$title->id = $config['bhl'] . '/bibliography/' . $row->TitleID;
+		$title->name = $row->FullTitle;
+		
+		if (isset($row->ShortTitle) && strcmp($row->ShortTitle, $row->FullTitle) !== 0)
+		{
+			$title->alternateName = $row->ShortTitle;
+		}
+			
+		if (isset($row->IdentifierName))
+		{	
+		
+			if (!isset($title->identifier))
+			{
+				$title->identifier = array();
+			}
+		
+			if (!isset($title->identifier[$row->IdentifierName]))
+			{
+				$title->identifier[$row->IdentifierName] = [];
+			}
+			
+			$title->identifier[$row->IdentifierName][] = $row->IdentifierValue;
+		}
+	}
+	
+	// DOI?
+	$sql = 'SELECT * FROM doi WHERE EntityID='. $TitleID . ' AND EntityType="Title"';
+
+	$data = db_get($sql);
+	
+	foreach ($data as $row)
+	{
+		if (!isset($title->doi))
+		{
+			$title->doi = [];
+		}
+		$title->doi[] = $row->DOI;
+	}
+	
+	// list of items
+	$title->items = get_items_for_title($TitleID);	
+	
+	//print_r($title);
+	
+	$triples = [];
+	
+	// creative work
+	$s = $title->id;
+	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+	$o = 'https://schema.org/CreativeWork';		
+	$triples[] = [$s, $p, $o];	
+	
+	// DataFeed
+	$s = $title->id;
+	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+	$o = 'https://schema.org/DataFeed';		
+	$triples[] = [$s, $p, $o];	
+
+	// name
+	$s = $title->id;
+	$p = 'https://schema.org/name';
+	$o = '"' . nice_literal($title->name) . '"';		
+	$triples[] = [$s, $p, $o];	
+	
+	if (isset($title->alternateName))
+	{
+		$s = $title->id;
+		$p = 'https://schema.org/alternateName';
+		$o = '"' . nice_literal($title->alternateName) . '"';		
+		$triples[] = [$s, $p, $o];		
+	}
+	
+	if (isset($title->identifier['ISSN']))
+	{
+		foreach ($title->identifier['ISSN'] as $issn)
+		{
+			$s = $title->id;
+			$p = 'https://schema.org/issn';
+			$o = '"' . nice_literal($issn) . '"';		
+			$triples[] = [$s, $p, $o];		
+		}
+	}
+	
+	foreach ($title->items as $ItemID => $position)
+	{
+		$list_item_id = $title->id . '/item/' . str_pad($position, 4, '0', STR_PAD_LEFT);
+		
+		$item = $config['bhl'] . '/item/' . $ItemID;
+	
+		// DataFeedItem
+		$s = $title->id;
+		$p = 'https://schema.org/dateFeedElement';
+		$o = $list_item_id;
+		$triples[] = [$s, $p, $o];
+		
+		// position
+		$s = $list_item_id;
+		$p = 'https://schema.org/position';
+		$o = '"' . $position . '"^^<http://www.w3.org/2001/XMLSchema#integer>';		
+		$triples[] = [$s, $p, $o];		
+		
+		// item
+		$s = $list_item_id;
+		$p = 'https://schema.org/item';
+		$o = $item;		
+		$triples[] = [$s, $p, $o];	
+	}
+	
+	$output = dump_triples($triples);			
+	echo $output . "\n";
+	
+	return $title;
+}
+//----------------------------------------------------------------------------------------
 // Get item
 function get_item ($ItemID )
 {
@@ -44,8 +231,6 @@ function get_item ($ItemID )
 	$sql .= ' WHERE ItemID='. $ItemID;
 	
 	$data = db_get($sql);
-	
-	print_r($data);
 	
 	$item = null;
 	
@@ -107,16 +292,19 @@ function get_item ($ItemID )
 		}
 	}
 	
-	print_r($item);	
-	
-	// triples
-		
+	// triples		
 	$triples = [];
 	
 	// creative work
 	$s = $item->id;
 	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 	$o = 'https://schema.org/CreativeWork';		
+	$triples[] = [$s, $p, $o];	
+	
+	// DataFeed
+	$s = $item->id;
+	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+	$o = 'https://schema.org/DataFeed';		
 	$triples[] = [$s, $p, $o];	
 
 	// name
@@ -125,17 +313,18 @@ function get_item ($ItemID )
 	$o = '"' . nice_literal($item->name) . '"';		
 	$triples[] = [$s, $p, $o];	
 	
+	// Internet Archive
 	$s = $item->id;
 	$p = 'https://schema.org/sameAs';
 	$o = 'https://archive.org/details/' . $item->barcode;		
 	$triples[] = [$s, $p, $o];	
 	
+	// item is part of a title
 	$s = $item->id;
 	$p = 'https://schema.org/isPartOf';
 	$o = $item->isPartOf;		
 	$triples[] = [$s, $p, $o];	
 	
-
 	if (isset($item->provider))
 	{
 		$s = $item->id;
@@ -162,7 +351,6 @@ function get_item ($ItemID )
 			
 	$output = dump_triples($triples);			
 	echo $output . "\n";
-
 }
 
 //----------------------------------------------------------------------------------------
@@ -179,11 +367,14 @@ function get_item_pages($ItemID = null)
 	{
 		$sql .= ' WHERE ItemID='. $ItemID;
 	}
+	
 	$sql .= ' ORDER BY ItemID, CAST(SequenceOrder AS INTEGER)';
 	
 	$data = db_get($sql);
 	
 	//print_r($data);
+	
+	$page_counter = 1;
 	
 	$pages = array();
 	
@@ -243,24 +434,39 @@ function get_item_pages($ItemID = null)
 		
 	}
 	
-	// print_r($pages);
+	//print_r($pages);
 	
 	$triples = [];
 	
-	foreach ($pages as $page)
-	{
-		// a page is a creative work
-		$s = $page->id;
-		$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
-		$o = 'https://schema.org/CreativeWork';		
-		$triples[] = [$s, $p, $o];	
-		
-		// to do: link to parent item
+	$item_id = $config['bhl'] . '/item/' . $ItemID;	
 
-		// isPartOf an item, think about whether we want datafeed as well
+	foreach ($pages as $page)
+	{		
+		// page is part of a datafeed for the (BHL) item
+		$list_item_id = $item_id . '/page/' . str_pad($page->position, 4, '0', STR_PAD_LEFT);
+	
+		// DataFeedItem
+		$s = $item_id;
+		$p = 'https://schema.org/dateFeedElement';
+		$o = $list_item_id;
+		$triples[] = [$s, $p, $o];
+		
+		// position
+		$s = $list_item_id;
+		$p = 'https://schema.org/position';
+		$o = '"' . $page->position . '"^^<http://www.w3.org/2001/XMLSchema#integer>';		
+		$triples[] = [$s, $p, $o];		
+		
+		// datafeed (schema)item
+		$s = $list_item_id;
+		$p = 'https://schema.org/item';
+		$o = $page->id;	
+		$triples[] = [$s, $p, $o];	
+						
+		// isPartOf an item
 		$s = $page->id;
 		$p = 'https://schema.org/isPartOf';
-		$o = $config['bhl'] . '/item/' . $ItemID;
+		$o = $item_id;
 		$triples[] = [$s, $p, $o];	
 	
 		// page name
@@ -282,14 +488,6 @@ function get_item_pages($ItemID = null)
 		$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 		$o = 'http://iiif.io/api/presentation/3#Canvas';		
 		$triples[] = [$s, $p, $o];	
-		
-		/*		
-		// canvas has a position (they are ordered)
-		$s = $page->canvas;
-		$p = 'https://schema.org/position';
-		$o = '"' . $page->position . '"^^<http://www.w3.org/2001/XMLSchema#integer>';		
-		$triples[] = [$s, $p, $o];	
-		*/
 						
 		// store media links
 		$s = $page->id;
@@ -310,19 +508,366 @@ function get_item_pages($ItemID = null)
 		$triples[] = [$s, $p, $o];
 		*/
 		
-		create_encoding_triples($triples, $page->id, $page->text, "text/plain");
-			
+		// text as encoding, with link to text URL
+		create_encoding_triples($triples, $page->id, $page->text, "text/plain");	
 	}
 	
 	$output = dump_triples($triples);			
 	echo $output . "\n";
 }
 
+
+//----------------------------------------------------------------------------------------
+// Get part
+function get_part($PartID)
+{
+	global $config;
+	
+	// part and identifiers
+	$sql = 'SELECT * FROM part 
+	LEFT OUTER JOIN partidentifier USING(PartID)
+	WHERE PartID='. $PartID;
+	
+	$data = db_get($sql);
+	
+	// print_r($data);
+	
+	$part = new stdclass;
+	$part->creator = [];
+	
+	foreach ($data as $row)
+	{
+		$part->id = $config['bhl'] . '/part/' . $row->PartID;
+		$part->name = $row->Title;
+		$part->SegmentType = $row->SegmentType;
+		$part->position = $row->SequenceOrder;
+		
+		$part->isPartOf = $row->ItemID;
+		
+		// StartPageID for thumbnail
+		
+		if (isset($row->Volume))
+		{
+			$part->volume = $row->Volume;
+		}
+
+		if (isset($row->Issue))
+		{
+			$part->issue = $row->Issue;
+		}
+
+		if (isset($row->PageRange))
+		{
+			$part->pagination = $row->PageRange;
+			$part->pagination = str_replace('--', '-', $part->pagination);
+		}
+		
+		// more precise pages
+		
+		// represent journal relationship (e.g., ISSN)
+		
+		
+		if (isset($row->LicenseUrl))
+		{
+			$part->license = $row->LicenseUrl;
+		}
+
+		if (isset($row->Date))
+		{
+			$part->date = $row->Date;
+		}
+		
+		// identifiers
+		if (isset($row->IdentifierName))
+		{	
+		
+			if (!isset($part->identifier))
+			{
+				$part->identifier = array();
+			}
+		
+			if (!isset($part->identifier[$row->IdentifierName]))
+			{
+				$part->identifier[$row->IdentifierName] = [];
+			}
+			
+			$part->identifier[$row->IdentifierName][] = $row->IdentifierValue;
+		}
+
+		/*
+           [ContainerTitle] => Memoirs of Museum Victoria
+            [PublicationDetails] => Melbourne : Museum Victoria , 1999-2010
+            [Volume] => 61
+            [Date] => 2004
+            [PageRange] => 47--55
+            [StartPageID] => 48951678
+            [SegmentUrl] => https://www.biodiversitylibrary.org/part/175696
+            [RightsStatus] => In copyright. Digitized with the permission of the rights holder.
+            [RightsStatement] => https://biodiversitylibrary.org/permissions
+            [LicenseUrl] => http://creativecommons.org/licenses/by-nc-sa/4.0/
+            [RightsHolder] => Museums Victoria
+            [IdentifierName] => BioStor
+            [IdentifierValue] => 167448
+            [CreationDate] => 2016-07-25 05:39
+ 
+		*/
+	}
+	
+	// DOI?
+	$sql = 'SELECT * FROM doi WHERE EntityID='. $PartID . ' AND EntityType="Part"';
+
+	$data = db_get($sql);
+	
+	foreach ($data as $row)
+	{
+		if (!isset($part->doi))
+		{
+			$part->doi = [];
+		}
+		$part->doi[] = strtolower($row->DOI);
+	}
+	
+	// Creator
+	$sql = 'SELECT CreatorID FROM partcreator WHERE PartID=' . $PartID;	
+
+	$data = db_get($sql);
+	
+	foreach ($data as $row)
+	{
+		$part->creator[] = $row->CreatorID;
+	}
+	
+	// pages
+	// Item pages
+	$sql = 'SELECT PageID, SequenceOrder FROM partpage WHERE PartID=' . $PartID;	
+	$sql .= ' ORDER BY CAST(SequenceOrder AS INTEGER)';
+	
+	$data = db_get($sql);
+	
+	//print_r($data);
+	
+	$pages = [];
+	
+	foreach ($data as $row)
+	{
+		$pages[$row->SequenceOrder] = $row->PageID;
+	}
+
+	//print_r($part);
+
+	$triples = [];
+	
+	/*
+375377,Article x
+363,Book x
+584,Chapter x
+2,Conference
+26532,Correspondence
+17,Issue x
+1342,List
+55,Manuscript x
+96,Notes
+423,Review
+1,Treatment
+1,Unknown
+*/
+	// map part types on to schema.org
+	switch ($part->SegmentType)
+	{
+		case 'Article':
+			$part->type = 'ScholarlyArticle';
+			break;
+			
+		case 'Book':
+		case 'Chapter':
+		case 'Manuscript':
+		case 'Review':	
+			$part->type = $part->SegmentType;
+			break;
+	
+		case 'Issue':
+			$part->type = 'PublicationIssue';
+			break;
+	
+		case 'Conference':	
+		case 'Correspondence':
+		case 'List':	
+		case 'Notes':	
+		case 'Treatment':	
+		case 'Unknown':	
+		default:
+			$part->type = 'CreativeWork';
+			break;
+	}
+	
+	$s = $part->id;
+	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+	$o = 'https://schema.org/' . $part->type;		
+	$triples[] = [$s, $p, $o];	
+	
+	// Part is a DataFeed (for list of pages)
+	$s = $part->id;
+	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+	$o = 'https://schema.org/DataFeed';		
+	$triples[] = [$s, $p, $o];	
+
+	// title
+	$s = $part->id;
+	$p = 'https://schema.org/name';
+	$o = '"' . nice_literal($part->name) . '"';
+	$triples[] = [$s, $p, $o];	
+	
+	// other bibliographic details...? we sorta break schema's model if we have volume and issue
+	if (isset($part->pagination))
+	{
+		$s = $part->id;
+		$p = 'https://schema.org/pagination';
+		$o = '"' . nice_literal($part->pagination) . '"';
+		$triples[] = [$s, $p, $o];		
+	}
+	
+	// part of item
+	$s = $part->id;
+	$p = 'https://schema.org/isPartOf';
+	$o = $config['bhl'] . '/item/' . $part->isPartOf;		
+	$triples[] = [$s, $p, $o];	
+	
+	// PDF as encoding
+	$pdf = $config['bhl'] . '/partpdf/' . $PartID;
+	create_encoding_triples($triples, $part->id, $pdf, "application/pdf");
+
+	// DOI
+	if (isset($part->doi))
+	{
+		foreach ($part->doi as $doi)
+		{
+			$s = $part->id;
+			$p = 'https://schema.org/sameAs';
+			$o = nice_uri('https://doi.org/' . $doi);
+			$triples[] = [$s, $p, $o];	
+		}
+	}
+	
+	// license
+	if (isset($part->license))
+	{
+		$s = $part->id;
+		$p = 'https://schema.org/license';
+		$o = nice_uri($part->license);
+		$triples[] = [$s, $p, $o];			
+	}
+	
+	if (isset($part->date))
+	{
+		create_date($triples, $part->date, $part->id, 'https://schema.org/datePublished');
+	}
+	
+	// link to creator id
+	foreach ($part->creator as $creator)
+	{
+		$s = $part->id;
+		$p = 'https://schema.org/creator';
+		$o = $config['bhl'] . '/creator/' . $creator;
+		$triples[] = [$s, $p, $o];			
+	}
+	
+	// print_r($pages);
+	
+	// note that we need DataFeedItems as list elements because
+	// the position of a page in the list is a property of the list element,
+	// not the page, otherwise we end up with multiple positions assigned to
+	// the same page.
+	foreach ($pages as $position => $PageID)
+	{
+		$list_item_id = $part->id . '/page/' . str_pad($position, 4, '0', STR_PAD_LEFT);
+	
+		$s = $part->id;
+		$p = 'https://schema.org/dateFeedElement';
+		$o = $list_item_id;
+		$triples[] = [$s, $p, $o];
+
+		$s = $list_item_id;
+		$p = 'https://schema.org/position';
+		$o = '"' . $position . '"^^<http://www.w3.org/2001/XMLSchema#integer>';		
+		$triples[] = [$s, $p, $o];
+		
+		$s = $list_item_id;
+		$p = 'https://schema.org/item';
+		$o = $config['bhl'] . '/page/' . $PageID;		
+		$triples[] = [$s, $p, $o];
+	}
+
+	//print_r($triples);
+
+	$output = dump_triples($triples);			
+	echo $output . "\n";
+}
+
+
+
 $ItemID = 281611; // Monograph/Icones P no or little OCR in BHL!
 $ItemID = 199416; // frogs peru
 
-get_item($ItemID );
+//get_item($ItemID );
 //get_item_pages($ItemID );
+
+
+if (0)
+{
+	$TitleID = 57881;
+	
+	$title = get_title($TitleID);
+	
+
+	foreach ($title->items as $ItemID => $position)
+	{
+		echo "\n\n";
+		
+		get_item($ItemID);
+		
+		echo "\n\n";
+		
+		get_item_pages($ItemID);
+		
+		echo "\n\n";
+	}
+
+	
+}
+
+if (1)
+{
+	$PartID = 178769;
+	$PartID = 175696;
+	
+	
+	
+	$PartID = 229238;
+	$PartID = 229257;
+	
+	
+	get_part($PartID);
+	
+}	
+
+if (0)
+{
+	$ItemID = 223011;
+	get_item($ItemID);
+	
+	echo "\n\n";
+	
+	get_item_pages($ItemID);
+	
+	echo "\n\n";
+	
+	
+}
+	
+
+
+
+
 
 ?>
 

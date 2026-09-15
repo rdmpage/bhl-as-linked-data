@@ -2,11 +2,17 @@
 
 Experiments to render BHL as linked data.
 
+## Vocabulary
+
+Wherever possible we use schema.org](https://schema.org) with https protocol (see [Is it http://schema.org or https://schema.org?](https://docs.nde.nl/blog/2026/03/09/schema.org/)).
+
 ## IIIF
 
 Use IIIF Presentation API version 3 to model a BHL item. The key idea behind the IIIF model is that there is a virtual page (the “canvas”) which we annotate. **Everything is an annotation**, the page image, the OCR text, etc. This enables us to think about having multiple page images for the same page (e.g, an original scan image, a highly compressed black and white image, etc.), as well as having multiple text annotations (for example, OCR output provided by Internet Archive, as well as more powerful LLM-based tools). We can also have annotations for blocks of text or words, such as taxonomic names. The model allows for different versions of the data.
 
-To explore this idea, we take an Internet Archive scandata.xml file and convert it to a IIIF `manifest.json` file. The canvas (virtual page) dimensions are the cropbox width and height in the scandata file, and we can compute the approximate image sizes for the thumbnails and large WEBP images stored on [AWS](https://registry.opendata.aws/bhl-open-data/) based on standard widths of 150 and 930 pixels, respectively. We can treat OCR text as a canvas-level annotation, and also add smaller annotations (such as location of taxonomic names on a page). The canvas dimensions are the same as page dimensions in the Internet Archive OCR outputs, so we can use those coordinates directly. Note that for LLM-based OCR tools we will may text-based rather than coordinate-based annotations as the output from those tools often has coordinates for blocks of text 9e.g., paragraphs) but not individual words.
+To explore this idea, we take an Internet Archive scandata.xml file and convert it to a IIIF `manifest.json` file. The canvas (virtual page) dimensions are the cropbox width and height in the scandata file, and we can compute the approximate image sizes for the _thumbnail and _large WEBP images stored on [AWS](https://registry.opendata.aws/bhl-open-data/) based on standard widths of 150 and 930 pixels, respectively. Alternatively we can use the _full image which has the same dimensions as the scan.
+
+We can treat OCR text as a canvas-level annotation, and also add smaller annotations (such as location of taxonomic names on a page). The canvas dimensions are the same as page dimensions in the Internet Archive OCR outputs, so we can use those coordinates directly. Note that for LLM-based OCR tools we will may have text-based rather than coordinate-based annotations, as the output from those tools often do not include word-level coordinates.
 
 ### IIIF viewers
 
