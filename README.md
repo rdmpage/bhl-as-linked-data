@@ -1,10 +1,15 @@
 # BHL as linked data
 
-Experiments to render BHL as linked data.
+Experiments to render BHL as linked data. 
+
+Note that the goal is not to simply map BHL data dump tables onto arbitrary RDF, but model BHL data such that we could, in principle, build a BHL web interface using SPARQL queries. Leaving aside the wisdom of trying to run BHL on a triple store, setting that as a goal helps clarify the modelling. 
+
+One goal, for example, is to be be able to generate a IIIF manifest for a BHL item from the RDF. This enables us to visually test whether our model works (e.g., can we support page order, the relationship between parts and items). And because a IIIF viewer natuively speaks RDF (the manifest file a viewer needs is JSON-LD), it also means that we think about images and text as annotations, along with more obvious annotations such as taxonomic names, etc.
+
 
 ## Vocabulary
 
-Wherever possible we use schema.org](https://schema.org) with https protocol (see [Is it http://schema.org or https://schema.org?](https://docs.nde.nl/blog/2026/03/09/schema.org/)).
+Wherever possible we use [schema.org](https://schema.org) with the **https** protocol (see [Is it http://schema.org or https://schema.org?](https://docs.nde.nl/blog/2026/03/09/schema.org/)).
 
 ## IIIF
 
