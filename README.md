@@ -30,3 +30,41 @@ There is also an issue with multiple AnnotationPages on the same canvas. Tify re
 Most significantly, the notional canvas and the image drawn onto it are separate coordinate spaces. An Internet Archive canvas might be 3600 pixels wide while the large derivative we actually draw from AWS is 930 pixels wide. Both viewers assume the two are the same, so annotation coordinates expressed in canvas units — as the spec requires — are drawn at the wrong scale, in this case 3600/930 ≈ 3.87× too large. The two get it wrong differently: Tify divides by the declared body.width (Tify #348 (https://github.com/tify-iiif-viewer/tify/issues/348)), so declaring the image at canvas dimensions accidentally makes it work, whereas Mirador ignores the declaration entirely and uses the decoded image's true pixel size (Mirador #4533 (https://github.com/ProjectMirador/mirador/issues/4533)), so no manifest-level change helps.
 
 Canvas coordinates are worth persevering with for Internet Archive content, because they match the coordinates in IA's OCR files. The <OBJECT> dimensions in _djvu.xml correspond to the <cropBox> dimensions in _scandata.xml — 3600 × 4831 for the pages above — so annotation coordinates taken straight from the OCR need no transformation to align with the canvas. Scaling them into the derivative's coordinate space would make Mirador render correctly today, but would tie every coordinate to whatever size the derivative happens to be.
+
+### Ranges (tables of contents)
+
+BHL parts — the articles within an item — become IIIF `Range`s, listed in the manifest's `structures`. A viewer renders these as a table of contents, which makes the part/item relationship something you can see rather than infer. Each range carries the part's title as its label and references the canvases for that part's pages.
+
+The ranges are built by a SPARQL `SELECT` of their own (`construct_ranges()`) rather than by adding patterns to the manifest `CONSTRUCT`, for two reasons that only became apparent once ranges covered every page of a part rather than just the first.
+
+The first is cost. Joined into the manifest query, the parts multiply against the pages: for item 223011 that is 220 pages × 211 part pages = 52,117 solutions to produce 6,447 distinct triples, roughly 88% of the work discarded, and the waste grows with the product of the two rather than their sum. Asked separately the cost is just the number of part pages.
+
+The second is order, and it is the more insidious of the two. A `CONSTRUCT` returns an unordered set of triples — an endpoint is under no obligation to preserve an `ORDER BY` when serialising one — so the canvases within each range came back scrambled: range 1 held pages 3, 4, 7, 5, 6. Every one of the 27 ranges was affected. With a single page per range this is invisible, which is exactly what makes it dangerous. A `SELECT` returns a sequence, so `ORDER BY ?part_position ?page_position` gives both the order of the ranges and the order of pages within each one, and no sorting is needed afterwards.
+
+### JSON-LD framing, and why the manifest is assembled by hand
+
+The manifest is produced by framing the RDF returned by the `CONSTRUCT`, but several parts of it cannot come out of the framing and are fixed up in PHP afterwards.
+
+Framing embeds a node under *every* property that points at it, rather than embedding it once and referencing it elsewhere. A range reached through framing therefore carries a complete second copy of each of its pages — painting annotation, thumbnail, OCR body and all — instead of a reference. With one page per range this cost about 13%; with every page of every part it doubled the manifest outright, from 610 KB to 1212 KB. Building `structures` in PHP sidesteps this entirely, because the page canvases never enter the framed document. It is worth knowing that this cuts both ways: the same behaviour is why `items` survived intact rather than being silently downgraded to bare references, and any further property hung off canvases will produce yet another full copy.
+
+Labels are a separate problem. IIIF requires a language map, `{"none": ["Page 1"]}`, and `ml/json-ld` is a JSON-LD 1.0 processor that cannot produce that shape: a `@container` of `["@language", "@set"]` is rejected outright, a plain `"@language"` container yields strings rather than the arrays IIIF wants, and there is no `@none` to file untagged literals under. So labels are emitted as ordinary literals and converted by `language_map()` on the way out.
+
+### The `@context`, and whether anything calls home
+
+The manifest declares `"@context": "http://iiif.io/api/presentation/3/context.json"`, but that string is written straight into the output rather than handed to the processor. The official context is `@version` 1.1 — it uses scoped contexts, an `["@language", "@set"]` container on `label`, and `@none` — and asking `ml/json-ld` 1.2.1 to compact against it throws. The internal context in `construct_iiif()` is what actually does the compaction, and it is not a shortcut so much as the only option short of changing libraries.
+
+That makes it worth checking that the two agree, since declaring a context is a promise about how the JSON should be read. They do, on the IRI of every term the manifest emits, with one exception that was a genuine bug: the official context maps `format` to `http://purl.org/dc/elements/1.1/format`, not `dcterms:format`. The JSON is identical either way, so the manifest said one thing and meant another, and the discrepancy only surfaces on a round trip back to RDF. It now emits the element-set IRI.
+
+The remaining difference is containers — the official context declares `items`, `structures` and `annotations` as `@list` where the internal one uses `@set`. This changes nothing in the JSON, both being arrays, and shows only on expansion back to RDF, where `@list` additionally asserts the page order the arrays are already sorted into. The official reading is the stronger of the two rather than a contradiction.
+
+On the question of JSON-LD tools quietly fetching contexts over the network: nothing here does. Running the whole pipeline with PHP's `http` and `https` stream wrappers unregistered and replaced by recorders, parsing, `fromRdf` and framing complete with zero network accesses. What matters is how the context is passed. Inline, as an object, there is nothing to dereference; passed as a URL string the same library fetches it immediately. The only call the script makes is the SPARQL query itself. A *consumer* expanding the manifest with the official context will fetch it, and also `http://www.w3.org/ns/anno.jsonld` which it imports inside the Annotation scopes, but that is their side rather than ours.
+
+### Silent failures in SPARQL
+
+Two failure modes cost enough time to be worth recording, because neither produces an error — a whole property simply goes missing from the manifest.
+
+`BIND` inside an `OPTIONAL` cannot see variables bound outside it. An `OPTIONAL` group is evaluated on its own before the left join, so an outer `?manifest` or `?canvas` is unbound within it, `CONCAT` raises a type error on the unbound argument, and every template triple using the result disappears. Any such `BIND` has to re-state the patterns binding the variables it reads.
+
+`CONCAT` also rejects non-string literals. `schema:position` is an `xsd:integer`, so it needs wrapping in `STR()`; passing it raw fails the same silent way.
+
+The general lesson is that when a property is missing from the framed manifest, an unbound `BIND` is a likelier culprit than the framing. It is also worth checking what the triple store actually holds before debugging a query — the store here is grown incrementally, so a query can be correct and still return nothing.

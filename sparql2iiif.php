@@ -94,8 +94,81 @@ function fix_language_maps($node)
 }
 
 //----------------------------------------------------------------------------------------
+// Fetch the parts of an item as IIIF ranges, i.e. the table of contents.
+//
+// A SELECT of its own rather than more patterns in the manifest CONSTRUCT. Joined into that
+// query the parts multiply against the pages: on item 223011 that is 220 pages x 211 part
+// pages = 52,117 solutions to produce 6,447 distinct triples, and the waste grows with the
+// product of the two, not their sum. Asked separately the cost is just the number of part
+// pages.
+//
+// Building the ranges here rather than through framing also keeps the page canvases out of
+// the framed document. Framing embeds a node under every property that points at it, so a
+// range reached that way carries a complete second copy of each of its pages -- painting
+// annotation, thumbnail, OCR and all -- which doubled the manifest on item 223011 once every
+// page of every part was included.
+function construct_ranges($item, $manifest_id)
+{
+	$sparql = '
+	SELECT ?part_position ?part_name ?part_canvas
+	WHERE {
+	  VALUES ?item { <ITEM> }
+
+	  ?part <https://schema.org/isPartOf> ?item .
+	  ?part <https://schema.org/position> ?part_position .
+	  ?part <https://schema.org/name> ?part_name .
+
+	  ?part <https://schema.org/dataFeedElement> ?part_dataFeedElement .
+	  ?part_dataFeedElement <https://schema.org/position> ?page_position .
+	  ?part_dataFeedElement <https://schema.org/item> ?part_page .
+	  ?part_page <https://schema.org/sameAs> ?part_canvas .
+	}
+	ORDER BY ?part_position ?page_position
+	';
+
+	$sparql = str_replace('<ITEM>', '<' . $item . '>', $sparql);
+
+	$structures = array();
+
+	// ORDER BY is honoured here, unlike in the CONSTRUCT that builds the rest of the manifest
+	// -- a SELECT returns a sequence, so the parts and the pages within each part arrive in
+	// position order and the array can just be built up as the rows come in. That is why this
+	// needs none of the sorting the canvases need.
+	foreach (query($sparql) as $row)
+	{
+		$position = $row->part_position->value;
+
+		if (!isset($structures[$position]))
+		{
+			$range = new stdclass;
+
+			$range->id   = $manifest_id . '/range/' . $position;
+			$range->type = 'Range';
+
+			// a plain string, converted to a language map by fix_language_maps() along with
+			// every other label in the manifest
+			$range->label = $row->part_name->value;
+			$range->items = array();
+
+			$structures[$position] = $range;
+		}
+
+		// a range references its canvases, it does not carry them
+		$canvas = new stdclass;
+
+		$canvas->id   = $row->part_canvas->value;
+		$canvas->type = 'Canvas';
+
+		$structures[$position]->items[] = $canvas;
+	}
+
+	// drop the part positions, which were only ever keys for the grouping above
+	return array_values($structures);
+}
+
+//----------------------------------------------------------------------------------------
 // Generate a IIIF manifest from a SPARQL query
-function construct_iiif()
+function construct_iiif($item = 'https://www.biodiversitylibrary.org/item/223011')
 {
 	global $config;
 	
@@ -141,7 +214,7 @@ function construct_iiif()
 	  ?a <https://www.w3.org/ns/oa#motivatedBy> <http://iiif.io/api/presentation/3#painting> .
 	  ?a <https://www.w3.org/ns/oa#hasBody> ?image .
 	  ?image <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/StillImage> .
-	  ?image <http://purl.org/dc/terms/format> "image/webp" .	  
+	  ?image <http://purl.org/dc/elements/1.1/format> "image/webp" .	  
 	  ?a <https://www.w3.org/ns/oa#hasTarget> ?canvas .
 	  
 	  # thumbnail
@@ -149,7 +222,7 @@ function construct_iiif()
 	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#width> ?thumbnail_width .
 	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#height> ?thumbnail_height .
 	  ?thumbnail <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/StillImage> .
-	  ?thumbnail <http://purl.org/dc/terms/format> "image/webp" .	
+	  ?thumbnail <http://purl.org/dc/elements/1.1/format> "image/webp" .	
 	  
 	  # OCR text
 	  #
@@ -163,12 +236,14 @@ function construct_iiif()
 	  ?ocr_anno <https://www.w3.org/ns/oa#motivatedBy> <http://iiif.io/api/presentation/3#supplementing> .
 	  ?ocr_anno <https://www.w3.org/ns/oa#hasBody> ?ocr .
 	  ?ocr <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/Text> .
-	  ?ocr <http://purl.org/dc/terms/format> "text/plain" .
+	  ?ocr <http://purl.org/dc/elements/1.1/format> "text/plain" .
 	  ?ocr_anno <https://www.w3.org/ns/oa#hasTarget> ?canvas .
+	  
+	  # ranges (the table of contents) are fetched separately, see construct_ranges()
 
 	}
 	WHERE {
-	  VALUES ?item { <https://www.biodiversitylibrary.org/item/199416> }
+	  VALUES ?item { <ITEM> }
 	  
 	  ?item <https://schema.org/encoding> ?manifest .
 	  ?manifest <https://schema.org/encodingFormat> "application/ld+json" .
@@ -209,10 +284,11 @@ function construct_iiif()
 	    BIND(IRI(CONCAT(STR(?canvas), "/ocr")) AS ?ocr_ap)
 	    BIND(IRI(CONCAT(STR(?canvas), "/ocr/a1")) AS ?ocr_anno)
 	  }
+	  
 	}
 	';
 	
-	//$sparql = str_replace('URI', $uri, $sparql);
+	$sparql = str_replace('<ITEM>', '<' . $item . '>', $sparql);
 	
 	$triples = construct($sparql);
 	
@@ -290,7 +366,12 @@ function construct_iiif()
 	$context->target = $target;
 	
 	// image	
-	$context->format = "http://purl.org/dc/terms/format";
+	// dc:format from the 1.1 element set, not dcterms:format. The official IIIF context maps
+	// "format" to http://purl.org/dc/elements/1.1/format, and since the manifest declares that
+	// context (see below) anyone expanding it reads the property as that IRI. Emitting
+	// dcterms:format here would make the manifest say one thing and mean another; the JSON is
+	// identical either way, so this only shows up on a round trip back to RDF.
+	$context->format = "http://purl.org/dc/elements/1.1/format";
 	$context->Image = "http://purl.org/dc/dcmitype/StillImage";
 	$context->Text = "http://purl.org/dc/dcmitype/Text";
 	
@@ -331,10 +412,44 @@ function construct_iiif()
 	// carry schema:position through the CONSTRUCT to get it.
 	usort($manifest->items, function ($a, $b) { return strcmp($a->id, $b->id); });
 
+	// The table of contents, from a query of its own.
+	//
+	// Omitted entirely when the item has no parts: an empty "structures" array would have
+	// viewers offer a table of contents and then show nothing in it.
+	$structures = construct_ranges($item, $manifest->id);
+
+	if (count($structures) > 0)
+	{
+		$manifest->structures = $structures;
+	}
+
 	fix_language_maps($manifest);
+
+	// Declare the IIIF Presentation 3 context.
+	//
+	// Written straight into the output rather than handed to the processor: ml/json-ld 1.2.1
+	// is a JSON-LD 1.0 implementation and the official context is @version 1.1 -- scoped
+	// contexts, an ["@language", "@set"] container on label, @none -- so compacting against
+	// that file throws outright. Nothing fetches this URL: it is only a string in the JSON,
+	// and the $context above is what actually did the compaction.
+	//
+	// The two agree on the IRI of every term this manifest emits. They differ only in the
+	// containers -- the official context declares items, structures and annotations as @list
+	// where $context uses @set -- which changes nothing in the JSON, both being arrays, and
+	// shows only if a consumer expands the manifest back to RDF. There @list also asserts the
+	// page order that construct_ranges() and the usort above already put the arrays in, so the
+	// official reading is the stronger of the two rather than a contradiction.
+	//
+	// array_merge, rather than assigning the property, so @context comes out first as IIIF
+	// manifests conventionally have it.
+	$manifest = (object)array_merge(
+		array('@context' => 'http://iiif.io/api/presentation/3/context.json'),
+		(array)$manifest
+	);
+
 	echo json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 }
 
-construct_iiif();
+construct_iiif('https://www.biodiversitylibrary.org/item/223011');
 
 ?>
