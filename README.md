@@ -11,6 +11,41 @@ One goal, for example, is to be be able to generate a IIIF manifest for a BHL it
 
 Wherever possible we use [schema.org](https://schema.org) with the **https** protocol (see [Is it http://schema.org or https://schema.org?](https://docs.nde.nl/blog/2026/03/09/schema.org/)).
 
+## Annotations
+
+There are already multiple sources of annotations of BHL content, suchb as taxonomic names from Global Names, tagged images on Flickr, etc. 
+
+### Zooniverse
+
+The Zooniverse dataset https://github.com/gbhl/bhl-us-data-sets/tree/master/Zooniverse includes annotations for images, which can include coordinates. For example, https://github.com/gbhl/bhl-us-data-sets/blob/master/Zooniverse/GSC0000002-39136.csv line 3:
+
+```
+ASC0000hkl,15,2259023,v. 1 (1829),Page 106,1829,0.3602676273803397,drawing,"[0, 0, 361, 805, 392, 386]","{""keywords""=>[""mermaid"", ""fish"", ""monkey"", ""Mermaid"", ""experiment"", ""mystical creature"", ""Japan"", ""holland"", ""japan"", ""Cuvier"", ""test"", ""folklore"", ""Mythological"", ""aquatic creature"", ""half monkey half fish"", ""legendary creature"", ""fake"", ""museum exhibit"", ""Conchilla""]}"
+```
+
+The [0, 0, 361, 805, 392, 386] correspond to [x, y, top, left, width, height] where x and y refer to text elements, and top, left, width, and height refer to graphical elements. If we divide by the scale 0.3602676273803397 we get rounded coordinates of 1002,2234,1088,1071, which correspond to a IIIF fragment identifier ?xywh=1002	,2234,1088,1071 on the canvas for this page (2259023). This gives us the annotation:
+
+```
+{
+  "id": "https://archive.org/details/magazineofnatura01loud/canvas/p0130/block1",
+  "type": "AnnotationPage",
+  "items": [{
+    "id": "https://archive.org/details/magazineofnatura01loud/canvas/p0130/block1/a1",
+    "type": "Annotation",
+    "motivation": "commenting",
+    "body": {
+      "type": "TextualBody",
+      "value": "Zooniverse ASC0000hkl mermaid",
+      "format": "text/plain"
+    },
+    "target": "https://archive.org/details/magazineofnatura01loud/canvas/p0130#xywh=1002,2234,1088,1071"
+  }]
+}
+```
+
+![mermaid](mermaid.png)
+
+
 ## IIIF
 
 Use IIIF Presentation API version 3 to model a BHL item. The key idea behind the IIIF model is that there is a virtual page (the “canvas”) which we annotate. **Everything is an annotation**, the page image, the OCR text, etc. This enables us to think about having multiple page images for the same page (e.g, an original scan image, a highly compressed black and white image, etc.), as well as having multiple text annotations (for example, OCR output provided by Internet Archive, as well as more powerful LLM-based tools). We can also have annotations for blocks of text or words, such as taxonomic names. The model allows for different versions of the data.
