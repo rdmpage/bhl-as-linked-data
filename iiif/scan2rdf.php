@@ -9,6 +9,12 @@ $filename = 'scandata/generainsectorum9810wyts_scandata.xml';
 $filename = dirname(__FILE__) . '/scandata/Amphibianreptil9A_scandata.xml';
 //$filename = 'scandata/bihangtillkongls284kung_scandata.xml';
 
+$filename = dirname(__FILE__) . '/scandata/ruwenzoriexpedit07brit6_scandata.xml';
+
+$filename = dirname(__FILE__) . '/scandata/journalofarach3832010amer_scandata.xml';
+
+$filename = dirname(__FILE__) . '/scandata/magazineofnatura01loud.xml';
+
 {
 	$xml = file_get_contents($filename);
 
@@ -16,9 +22,12 @@ $filename = dirname(__FILE__) . '/scandata/Amphibianreptil9A_scandata.xml';
 	$dom->loadXML($xml);
 	$xpath = new DOMXPath($dom);
 	
+	// some older scanfiles may have namespace
+	$xpath->registerNamespace("scribe", "http://archive.org/scribe/xml");
+	
 	$id = '';
 	
-	foreach($xpath->query ('//bookData/bookId') as $node)
+	foreach($xpath->query ('(//bookData/bookId|scribe:bookData/scribe:bookId)') as $node)
 	{
 		$id = $node->firstChild->nodeValue;
 	}
@@ -27,7 +36,7 @@ $filename = dirname(__FILE__) . '/scandata/Amphibianreptil9A_scandata.xml';
 		
 	$leaf_counter = 0;
 		
-	foreach($xpath->query ('//pageData/page') as $page)
+	foreach($xpath->query ('(//pageData/page|//scribe:pageData/scribe:page)') as $page)
 	{
 		$attrs = $page->attributes; 		
 		foreach ($attrs as $i => $attr)
@@ -80,11 +89,11 @@ $filename = dirname(__FILE__) . '/scandata/Amphibianreptil9A_scandata.xml';
 			*/
 
 			// cropbox w and h correspond to dimensions of the image
-			foreach($xpath->query ('cropBox/w', $page) as $node)
+			foreach($xpath->query ('(cropBox/w|scribe:cropBox/scribe:w)', $page) as $node)
 			{
 				$canvas->width = (Integer)$node->firstChild->nodeValue;
 			}
-			foreach($xpath->query ('cropBox/h', $page) as $node)
+			foreach($xpath->query ('(cropBox/h|scribe:cropBox/scribe:h)', $page) as $node)
 			{
 				$canvas->height = (Integer)$node->firstChild->nodeValue;
 			}
