@@ -167,11 +167,15 @@ function construct_ranges($item, $manifest_id)
 }
 
 //----------------------------------------------------------------------------------------
-// Generate a IIIF manifest from a SPARQL query
-function construct_iiif($item = 'https://www.biodiversitylibrary.org/item/223011')
+// CONSTRUCT the manifest for a BHL item.
+//
+// An item manifest and a part manifest differ only in how they reach the pages: an item owns
+// its pages directly through schema:isPartOf, a part reaches them through its ordered
+// dataFeedElement list. Everything downstream -- canvas, painting annotation, thumbnail,
+// OCR -- is the same shape, which is why the conversion to JSON-LD is shared and only the
+// query is not.
+function item_manifest_query($item)
 {
-	global $config;
-	
 	$sparql = '
 	CONSTRUCT
 	{
@@ -257,7 +261,7 @@ function construct_iiif($item = 'https://www.biodiversitylibrary.org/item/223011
 	  ?canvas <http://www.w3.org/2003/12/exif/ns#width> ?width .
 	  ?canvas <http://www.w3.org/2003/12/exif/ns#height> ?height .
 
-	  OPTIONAL { ?page <https://schema.org/name> ?label . }
+#	  OPTIONAL { ?page <https://schema.org/name> ?label . }
 	  
 	  ?page <https://schema.org/image> ?image .
 	  
@@ -266,34 +270,208 @@ function construct_iiif($item = 'https://www.biodiversitylibrary.org/item/223011
 	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#height> ?thumbnail_height .	  
 	  
 	  
+	  # OCR, if this page has any.
+	  #
+	  # These patterns sit ABOVE the BINDs on purpose, and it is worth about 75 seconds.
+	  # Oxigraph evaluates a BIND as it meets it and joins what follows against the result,
+	  # so triple patterns placed after one are matched per solution rather than planned
+	  # against the indexes of the store. schema:encoding, schema:MediaObject and
+	  # encodingFormat "text/plain" each match roughly 2.1 million triples here, and BHL
+	  # Lite is only going to grow, so the difference is not going to get smaller. Asked
+	  # before the BINDs the same query answers in 0.22s; asked after, 76s. Both return
+	  # the same 220 solutions.
+	  #
+	  # Dropping the redundant rdf:type is not the fix. Every object of schema:encoding is
+	  # already a MediaObject, but removing it only takes 76s to 66s -- it is the position
+	  # that matters, not the pattern count.
+	  ?page <https://schema.org/encoding> ?ocr .
+	  ?ocr <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/MediaObject> .
+	  ?ocr <https://schema.org/encodingFormat> "text/plain" .
+
 	  BIND(IRI(CONCAT(STR(?canvas), "/ap1")) AS ?ap)
 	  BIND(IRI(CONCAT(STR(?canvas), "/ap1/a1")) AS ?a)
 
-	  # OCR, if this page has any. The BINDs sit inside the OPTIONAL on purpose: if there is
-	  # no OCR then ?ocr_ap stays unbound and the canvas gets no "annotations" property at
-	  # all. An AnnotationPage with an id but no items would make TIFY treat it as an
-	  # external page and fire a doomed fetch at it.
-	  OPTIONAL {
-	    # ?canvas has to be re-bound in here: an OPTIONAL group is evaluated on its own before
-	    # the left join, so ?canvas from the outer pattern is not visible to the BINDs below and
-	    # CONCAT would silently error, leaving ?ocr_ap unbound.
-	    ?page <https://schema.org/sameAs> ?canvas .
-	    ?page <https://schema.org/encoding> ?ocr .
-	    ?ocr <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/MediaObject> .
-	    ?ocr <https://schema.org/encodingFormat> "text/plain" .
 	    BIND(IRI(CONCAT(STR(?canvas), "/ocr")) AS ?ocr_ap)
 	    BIND(IRI(CONCAT(STR(?canvas), "/ocr/a1")) AS ?ocr_anno)
-	  }
 	  
 	}
-	';
+	';	
 	
 	$sparql = str_replace('<ITEM>', '<' . $item . '>', $sparql);
-	
-	$triples = construct($sparql);
-	
-	
-	// JSON-LD context to create manifest
+
+	return $sparql;
+}
+
+//----------------------------------------------------------------------------------------
+// The canvases of a part, in the order the part puts them in.
+//
+// Not the order their URIs sort in. A canvas URI ends in the page's sequence within the
+// ITEM, and for 1,678 of 72,885 parts that is not the order the part reads in -- a plate
+// bound elsewhere in the volume is referenced where it belongs in the article, so part
+// 120402 runs p0172, p0179, p0173. Sorting those by URI silently reorders the article.
+//
+// A SELECT rather than more patterns in the CONSTRUCT, for the same reason construct_ranges()
+// is one: a CONSTRUCT returns an unordered set, a SELECT returns a sequence.
+function part_page_order($part)
+{
+	$sparql = '
+	SELECT ?canvas
+	WHERE {
+	  VALUES ?part { <PART> }
+
+	  ?part <https://schema.org/dataFeedElement> ?element .
+	  ?element <https://schema.org/position> ?position .
+	  ?element <https://schema.org/item> ?page .
+	  ?page <https://schema.org/sameAs> ?canvas .
+	}
+	ORDER BY ?position
+	';
+
+	$sparql = str_replace('<PART>', '<' . $part . '>', $sparql);
+
+	$order = array();
+
+	foreach (query($sparql) as $row)
+	{
+		$order[] = $row->canvas->value;
+	}
+
+	return $order;
+}
+
+//----------------------------------------------------------------------------------------
+// CONSTRUCT the manifest for a BHL part, i.e. one article.
+function part_manifest_query($part)
+{
+	$sparql = '
+	CONSTRUCT
+	{
+	  # manifest 
+	  ?manifest <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://iiif.io/api/presentation/3#Manifest> .
+
+	  ?manifest <http://www.w3.org/2000/01/rdf-schema#label> ?title .
+
+	  # behavior: omitted for now, so each viewer uses its own default (both TIFY and Mirador
+	  # open a single page). Uncomment pagedHint for facing-page spreads, or swap it for
+	  # individualsHint to enforce single pages and hide the TIFY double-page toggle. The
+	  # "behavior" context term already has @vocab + @set, so either compacts to a bare string.
+	  # ?manifest <http://iiif.io/api/presentation/3#behavior> <http://iiif.io/api/presentation/3#pagedHint> .
+	  # ?manifest <http://iiif.io/api/presentation/3#behavior> <http://iiif.io/api/presentation/3#individualsHint> .
+
+	  # canvases
+	  ?manifest <http://www.w3.org/ns/activitystreams#items> ?canvas .
+
+	  # canvas
+	  ?canvas <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://iiif.io/api/presentation/3#Canvas> .
+	  
+	  # dimensions
+	  ?canvas <http://www.w3.org/2003/12/exif/ns#width> ?width .
+	  ?canvas <http://www.w3.org/2003/12/exif/ns#height> ?height .
+
+	  # label
+	  ?canvas <http://www.w3.org/2000/01/rdf-schema#label> ?label .
+	  	  
+	  # annotation page
+	  ?canvas <http://www.w3.org/ns/activitystreams#items> ?ap .
+	  ?ap <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/activitystreams#OrderedCollectionPage> .
+
+	  # items
+	  ?ap <http://www.w3.org/ns/activitystreams#items> ?a .
+
+	  # item
+	  ?a <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/oa#Annotation>  .
+
+	  # paint image on page
+	  ?a <https://www.w3.org/ns/oa#motivatedBy> <http://iiif.io/api/presentation/3#painting> .
+	  ?a <https://www.w3.org/ns/oa#hasBody> ?image .
+	  ?image <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/StillImage> .
+	  ?image <http://purl.org/dc/elements/1.1/format> "image/webp" .	  
+	  ?a <https://www.w3.org/ns/oa#hasTarget> ?canvas .
+	  
+	  # thumbnail
+	  ?canvas <http://iiif.io/api/presentation/3#thumbnail> ?thumbnail .
+	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#width> ?thumbnail_width .
+	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#height> ?thumbnail_height .
+	  ?thumbnail <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/StillImage> .
+	  ?thumbnail <http://purl.org/dc/elements/1.1/format> "image/webp" .	
+	  
+	  # OCR text
+	  #
+	  # A second AnnotationPage, hung off the canvas with "annotations" rather than "items"
+	  # (items is for the painting annotation that draws the image). The body is the URL of
+	  # the text file on S3 — viewers fetch it lazily, so the OCR never enters the manifest.
+	  ?canvas <http://iiif.io/api/presentation/3#annotations> ?ocr_ap .
+	  ?ocr_ap <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/activitystreams#OrderedCollectionPage> .
+	  ?ocr_ap <http://www.w3.org/ns/activitystreams#items> ?ocr_anno .
+	  ?ocr_anno <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/oa#Annotation> .
+	  ?ocr_anno <https://www.w3.org/ns/oa#motivatedBy> <http://iiif.io/api/presentation/3#supplementing> .
+	  ?ocr_anno <https://www.w3.org/ns/oa#hasBody> ?ocr .
+	  ?ocr <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/Text> .
+	  ?ocr <http://purl.org/dc/elements/1.1/format> "text/plain" .
+	  ?ocr_anno <https://www.w3.org/ns/oa#hasTarget> ?canvas .
+	  
+	  # ranges (the table of contents) are fetched separately, see construct_ranges()
+
+	}
+	WHERE {
+	  VALUES ?part { <PART> }
+
+	  # The manifest URI comes from the graph, exactly as it does for an item. get_part() in
+	  # sql/sql2rdf.php mints it as {part}/manifest and says so with a schema:encoding, so
+	  # there is one source for it rather than a generator and a query that have to agree.
+	  # A part carries two encodings, this and the part PDF, which is what the format
+	  # distinguishes.
+	  ?part <https://schema.org/encoding> ?manifest .
+	  ?manifest <https://schema.org/encodingFormat> "application/ld+json" .
+
+	  ?part <https://schema.org/name> ?title .
+
+	  # An item owns its pages through schema:isPartOf; a part reaches them through its
+	  # ordered dataFeedElement list, because a page can belong to several parts at different
+	  # positions and the position therefore lives on the list element, not on the page.
+	  # 111,975 pages are in more than one part, 95,840 of them at different positions.
+	  ?part <https://schema.org/dataFeedElement> ?element .
+	  ?element <https://schema.org/item> ?page .
+
+	  ?page <https://schema.org/sameAs> ?canvas .
+
+	  ?canvas <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://iiif.io/api/presentation/3#Canvas> .
+	  ?canvas <http://www.w3.org/2003/12/exif/ns#width> ?width .
+	  ?canvas <http://www.w3.org/2003/12/exif/ns#height> ?height .
+
+	  ?page <https://schema.org/image> ?image .
+
+	  ?page <https://schema.org/thumbnailUrl> ?thumbnail .
+	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#width> ?thumbnail_width .
+	  ?thumbnail <http://www.w3.org/2003/12/exif/ns#height> ?thumbnail_height .
+
+	  # OCR, if this page has any. Above the BINDs, for the reason set out in
+	  # item_manifest_query(): patterns after a BIND are matched per solution instead of
+	  # being planned against the indexes, which cost 75 seconds there.
+	  ?page <https://schema.org/encoding> ?ocr .
+	  ?ocr <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/MediaObject> .
+	  ?ocr <https://schema.org/encodingFormat> "text/plain" .
+
+	  BIND(IRI(CONCAT(STR(?canvas), "/ap1")) AS ?ap)
+	  BIND(IRI(CONCAT(STR(?canvas), "/ap1/a1")) AS ?a)
+
+	  BIND(IRI(CONCAT(STR(?canvas), "/ocr")) AS ?ocr_ap)
+	  BIND(IRI(CONCAT(STR(?canvas), "/ocr/a1")) AS ?ocr_anno)
+	}
+	';
+	$sparql = str_replace('<PART>', '<' . $part . '>', $sparql);
+
+	return $sparql;
+}
+
+//----------------------------------------------------------------------------------------
+// The JSON-LD context that compacts the framed manifest.
+//
+// Deliberately not the official IIIF context: that one is JSON-LD 1.1 and ml/json-ld is a 1.0
+// processor, so this is the working equivalent. finish_manifest() declares the official one
+// on the way out; the README records where the two differ.
+function manifest_context()
+{
 	$context = new stdclass;
 	
 	$context->Manifest = "http://iiif.io/api/presentation/3#Manifest";
@@ -379,6 +557,19 @@ function construct_iiif($item = 'https://www.biodiversitylibrary.org/item/223011
 	$context->id = "@id";
 	$context->type = "@type";
 		
+	return $context;
+}
+
+//----------------------------------------------------------------------------------------
+// Frame CONSTRUCTed triples into a IIIF manifest.
+//
+// Shared by every kind of manifest: it knows nothing about items or parts, only about the
+// shape IIIF wants. Returns null when the query matched nothing, so callers can say so
+// rather than emit a manifest with a null body.
+function manifest_from_triples($triples, $order = null)
+{
+	$context = manifest_context();
+
 	// Frame document using manifest
 	$frame = (object)array(
 		'@context' => $context,
@@ -400,6 +591,14 @@ function construct_iiif($item = 'https://www.biodiversitylibrary.org/item/223011
 	
 	$result  = JsonLD::frame($doc, $frame);
 	
+	// Nothing matched. Worth checking rather than indexing straight into @graph: an empty
+	// result used to produce a manifest of PHP notices and "items": null, which is not
+	// something a viewer can report usefully.
+	if (!isset($result->{'@graph'}) || count($result->{'@graph'}) == 0)
+	{
+		return null;
+	}
+
 	// just grab manifest, ignore @context
 	$manifest = $result->{'@graph'}[0];
 
@@ -410,19 +609,40 @@ function construct_iiif($item = 'https://www.biodiversitylibrary.org/item/223011
 	// when serialising a CONSTRUCT. Canvas URIs end in a zero-padded page number
 	// (.../canvas/p0001), so sorting them as strings gives page order, and we don't have to
 	// carry schema:position through the CONSTRUCT to get it.
-	usort($manifest->items, function ($a, $b) { return strcmp($a->id, $b->id); });
-
-	// The table of contents, from a query of its own.
-	//
-	// Omitted entirely when the item has no parts: an empty "structures" array would have
-	// viewers offer a table of contents and then show nothing in it.
-	$structures = construct_ranges($item, $manifest->id);
-
-	if (count($structures) > 0)
+	if ($order === null)
 	{
-		$manifest->structures = $structures;
+		usort($manifest->items, function ($a, $b) { return strcmp($a->id, $b->id); });
+	}
+	else
+	{
+		// An explicit order, for callers whose sequence is not the URI sequence -- see
+		// part_page_order(). Canvases the order does not mention keep their relative
+		// positions at the end rather than being dropped, so a gap in the data costs a
+		// misplaced page rather than a missing one.
+		$rank = array_flip($order);
+		$last = count($rank);
+
+		usort($manifest->items, function ($a, $b) use ($rank, $last)
+		{
+			$x = isset($rank[$a->id]) ? $rank[$a->id] : $last;
+			$y = isset($rank[$b->id]) ? $rank[$b->id] : $last;
+
+			return ($x == $y) ? strcmp($a->id, $b->id) : $x - $y;
+		});
 	}
 
+
+	return $manifest;
+}
+
+//----------------------------------------------------------------------------------------
+// Last pass over a manifest, whatever built it: language maps and the declared context.
+//
+// Separate from manifest_from_triples() because the caller gets to add its own properties in
+// between -- an item manifest hangs its table of contents on here, and those range labels
+// have to be language-mapped along with everything else.
+function finish_manifest($manifest)
+{
 	fix_language_maps($manifest);
 
 	// Declare the IIIF Presentation 3 context.
@@ -447,9 +667,60 @@ function construct_iiif($item = 'https://www.biodiversitylibrary.org/item/223011
 		(array)$manifest
 	);
 
-	echo json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+	return $manifest;}
+
+//----------------------------------------------------------------------------------------
+// A manifest for a BHL item, with its parts as a table of contents.
+function item_manifest($item)
+{
+	$manifest = manifest_from_triples(construct(item_manifest_query($item)));
+
+	if ($manifest === null)
+	{
+		return null;
+	}
+
+	// The table of contents, from a query of its own. Asked here rather than inside
+	// manifest_from_triples() because the range URIs are minted from the manifest URI, which
+	// is not known until the framing above has run.
+	//
+	// Omitted entirely when the item has no parts: an empty "structures" array would have
+	// viewers offer a table of contents and then show nothing in it.
+	$structures = construct_ranges($item, $manifest->id);
+
+	if (count($structures) > 0)
+	{
+		$manifest->structures = $structures;
+	}
+
+	return finish_manifest($manifest);
 }
 
-construct_iiif('https://www.biodiversitylibrary.org/item/223011');
+//----------------------------------------------------------------------------------------
+// A manifest for a single BHL part, i.e. one article.
+//
+// No structures: a part is one article, so a table of contents listing it would say nothing
+// the manifest does not already.
+function part_manifest($part)
+{
+	$manifest = manifest_from_triples(
+		construct(part_manifest_query($part)),
+		part_page_order($part));
+
+	return ($manifest === null) ? null : finish_manifest($manifest);
+}
+
+//----------------------------------------------------------------------------------------
+
+//$manifest = item_manifest('https://www.biodiversitylibrary.org/item/256454');
+$manifest = part_manifest('https://www.biodiversitylibrary.org/part/229237');
+
+if ($manifest === null)
+{
+	fwrite(STDERR, "Nothing matched -- is it in the triple store?\n");
+	exit(1);
+}
+
+echo json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
 ?>

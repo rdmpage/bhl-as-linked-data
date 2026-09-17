@@ -146,7 +146,9 @@ function canvas_triples($barcode)
 	return $triples;
 }
 
-if (1)
+// Only when run directly, so that sql2rdf.php and friends can require this file for
+// canvas_triples() without it emitting a manifest of its own.
+if (isset($argv[0]) && realpath($argv[0]) === __FILE__)
 {
 	$barcode = 'journalofarach3832010amer';
 

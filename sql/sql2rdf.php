@@ -7,6 +7,10 @@ error_reporting(E_ALL);
 require_once(dirname(dirname(__FILE__)) . '/shared.php');
 require_once (dirname(__FILE__) . '/sqlite.php');
 
+// canvas_triples(), for canvas dimensions out of canvas.sqlite. Including it emits nothing;
+// its own driver runs only when that file is the script being executed.
+require_once (dirname(dirname(__FILE__)) . '/iiif/canvas2rdf.php');
+
 //----------------------------------------------------------------------------------------
 // take ISO date and convert to typed date
 function create_date(&$triples, $date_string, $subject_uri, $predicate_uri = 'https://schema.org/datePublished')
@@ -772,6 +776,15 @@ function get_part($PartID)
 	$o = $config['bhl'] . '/item/' . $part->isPartOf;		
 	$triples[] = [$s, $p, $o];	
 	
+	// IIIF manifest
+	//
+	// Minted rather than looked up: unlike an item, whose manifest is Internet Archive's and
+	// is named after the barcode, a part has no manifest anywhere to point at. This URI is
+	// the one sparql2iiif.php builds a part manifest under, and saying so in the graph is
+	// what lets a consumer discover that the part has one at all.
+	$manifest = $config['bhl'] . '/part/' . $PartID . '/manifest';
+	create_encoding_triples($triples, $part->id, $manifest, "application/ld+json");
+
 	// PDF as encoding
 	$pdf = $config['bhl'] . '/partpdf/' . $PartID;
 	create_encoding_triples($triples, $part->id, $pdf, "application/pdf");
@@ -851,6 +864,113 @@ $ItemID = 199416; // frogs peru
 //get_item_pages($ItemID );
 
 
+//----------------------------------------------------------------------------------------
+// Generate RDF for BHL Lite, the subset listed in couchdb-items-titles.json.
+//
+// The file is a CouchDB view, one row per item: {"id": "item/105897", "key":
+// "bibliography/10088", "value": "item/105897"}. 314 of the 6,557 rows carry a list of
+// bibliographies rather than one, because the item belongs to several -- the same items
+// get_item() builds a multi-valued isPartOf for.
+//
+// Canvas dimensions come from canvas.sqlite via canvas_triples(), keyed on barcode rather
+// than ItemID. Without them a manifest has no canvas sizes and the IIIF CONSTRUCT matches
+// nothing, since it requires exif width and height on every canvas.
+//
+// Writes N-Triples to stdout and progress to stderr, so the two can be separated with a
+// plain redirect.
+function get_bhl_lite($path)
+{
+	global $config, $pdo;
+
+	$json = json_decode(file_get_contents($path));
+
+	if (!$json || !isset($json->rows))
+	{
+		fwrite(STDERR, "Can't read a CouchDB view from $path\n");
+		return;
+	}
+
+	$items = array();
+	$titles = array();
+
+	foreach ($json->rows as $row)
+	{
+		$items[(int)preg_replace('/^item\//', '', $row->value)] = true;
+
+		foreach ((is_array($row->key) ? $row->key : array($row->key)) as $key)
+		{
+			$titles[(int)preg_replace('/^bibliography\//', '', $key)] = true;
+		}
+	}
+
+	$items = array_keys($items);
+	$titles = array_keys($titles);
+
+	sort($items);
+	sort($titles);
+
+	// Barcodes for the canvas lookup, and the set of items that actually exist. The view is
+	// not necessarily the same vintage as bhl.db -- one item is in it and not in the
+	// database -- and get_item() on a missing ItemID would read properties off null rather
+	// than saying so.
+	$barcode = array();
+
+	foreach (db_get('SELECT DISTINCT ItemID, BarCode FROM item WHERE ItemID IN ('
+		. join(',', $items) . ')') as $row)
+	{
+		$barcode[$row->ItemID] = isset($row->BarCode) ? $row->BarCode : null;
+	}
+
+	$missing = array_diff($items, array_keys($barcode));
+
+	if (count($missing) > 0)
+	{
+		fwrite(STDERR, "skipping " . count($missing) . " item(s) not in the database: "
+			. join(', ', $missing) . "\n");
+	}
+
+	fwrite(STDERR, "BHL Lite: " . count($titles) . " titles, "
+		. (count($items) - count($missing)) . " items\n");
+
+	foreach ($titles as $TitleID)
+	{
+		get_title($TitleID);
+	}
+
+	fwrite(STDERR, "titles done\n");
+
+	$n = 0;
+
+	foreach ($items as $ItemID)
+	{
+		if (!isset($barcode[$ItemID]))
+		{
+			continue;
+		}
+
+		get_item($ItemID);
+		get_item_pages($ItemID);
+
+		foreach (get_item_parts($ItemID) as $PartID)
+		{
+			get_part($PartID);
+		}
+
+		// canvas dimensions, from canvas.sqlite rather than from BHL
+		if ($barcode[$ItemID] !== null)
+		{
+			echo dump_triples(canvas_triples($barcode[$ItemID]));
+		}
+
+		if (++$n % 250 == 0)
+		{
+			fwrite(STDERR, "  $n items\n");
+		}
+	}
+
+	fwrite(STDERR, "done, $n items\n");
+}
+
 if (0)
 {
 	$TitleID = 57881;
@@ -889,7 +1009,7 @@ if (0)
 	
 }	
 
-if (1)
+if (0)
 {
 	$ItemID = 223011;
 	
@@ -912,11 +1032,15 @@ if (1)
 	
 	
 }
-	
 
-
-
-
+// BHL Lite -- every title and item in the CouchDB view, canvases included.
+//
+//   php sql/sql2rdf.php > bhl-lite.nt 2> bhl-lite.log
+//
+// Set the block above to 0 first; both write to stdout.
+if (1)
+{
+	get_bhl_lite(dirname(dirname(__FILE__)) . '/couchdb-items-titles.json');
+}
 
 ?>
-

@@ -178,6 +178,62 @@ To explore this idea, we take an Internet Archive scandata.xml file and convert 
 
 We can treat OCR text as a canvas-level annotation, and also add smaller annotations (such as location of taxonomic names on a page). The canvas dimensions are the same as page dimensions in the Internet Archive OCR outputs, so we can use those coordinates directly. Note that for LLM-based OCR tools we will may have text-based rather than coordinate-based annotations, as the output from those tools often do not include word-level coordinates.
 
+### Manifest and canvas URIs
+
+Canvases and item manifests are named in Internet Archive's namespace, not BHL's:
+
+```
+canvas          https://archive.org/details/{barcode}/canvas/p0001
+item manifest   https://archive.org/details/{barcode}/manifest
+part manifest   https://www.biodiversitylibrary.org/part/{PartID}/manifest
+```
+
+This looks inconsistent, and it is deliberate. Everything Internet Archive produces for an
+item is keyed on the barcode — `_scandata.xml`, `_djvu.xml`, hOCR, and the `_thumb`/`_large`/
+`_full` derivatives on AWS. Naming canvases after the barcode means any tool working on those
+files can emit canvas URIs without first resolving a BHL ItemID, and so without needing the
+BHL database at all. `iiif/canvas2rdf.php` is the working proof: it reads `canvas.sqlite`,
+knows nothing about ItemIDs, and still produces canvas triples that join up with everything
+else. Moving canvases into BHL's namespace would couple every Internet Archive-side tool to a
+lookup it does not otherwise need.
+
+Parts are the exception because there is nothing to derive from: a BHL part is an article
+within a scan, with no Internet Archive counterpart and no barcode of its own, so its manifest
+is minted under the part. `sql/sql2rdf.php` emits that URI as a `schema:encoding` on the part,
+and `sparql2iiif.php` reads it from the graph rather than minting it a second time.
+
+Two things to be aware of before assuming this is a mistake and fixing it.
+
+These are identifiers, and for now they are not locations.
+`https://archive.org/details/{barcode}/manifest` returns `text/html` — Internet Archive's
+single-page app serves the details page for any sub-path, so the URI resolves, but to a web
+page rather than to a manifest. The same is true of the canvas URIs, and of the part manifests
+under biodiversitylibrary.org, which are not served at all.
+
+This is a known break rather than a principle, parked deliberately. A IIIF manifest URI is
+supposed to dereference to the manifest, and viewers have been driven from fixed local files
+during development rather than from these URIs. Where the manifests get served from, and
+therefore what they should be called, is a question for the client that will consume this
+subset, and answering it before there is a client would be guessing. Until then, treat the
+URIs as names that happen to look like URLs.
+
+Internet Archive's own IIIF is alive and lives elsewhere. It has not been dropped:
+`https://iiif.archive.org/iiif/{barcode}/manifest.json` serves a Presentation 3 manifest with
+a full Image API service over the jp2s, and for `journalofarach3832010amer` it agrees with us
+on the canvas dimensions, 2900 × 3856. Its identifiers are different from ours — the canvases
+are `https://iiif.archive.org/iiif/{barcode}$0/canvas` — so we are not reusing their
+identifiers and never were.
+
+That manifest is not a substitute for generating our own, for two reasons. The first is
+control: it carries no `structures`, so no table of contents, which is exactly the part/item
+relationship this repo exists to model, and it can carry nothing else we want either — OCR
+annotations tied to BHL page ids, taxonomic names, anything from Zooniverse. The second is
+that depending on someone else's service to render our data makes the model hostage to their
+roadmap. Linking to it with `rdfs:seeAlso` would be worth doing and costs nothing. Adding it
+as a second `schema:encoding` of type `application/ld+json` would not: `item_manifest_query()`
+matches an item's manifest by exactly that pattern, so a second one binds `?manifest` twice
+and the CONSTRUCT quietly produces a manifest crossed with itself.
+
 ### Canvas dimensions
 
 Parsing a `scandata.xml` file per item works, but it means fetching one file at a
