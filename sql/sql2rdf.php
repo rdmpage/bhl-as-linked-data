@@ -284,11 +284,16 @@ function get_item ($ItemID )
 		else
 		{
 			// link to any other items it is a part of
+			//
+			// 9,050 items are attached to more than one TitleID, which is legitimate -- a
+			// volume can sit in both a series and a standalone bibliography. The URI has to
+			// be built the same way as the first one above; appending the bare TitleID left
+			// the array holding a URI and an integer.
 			if (!is_array($item->isPartOf))
 			{
 				$item->isPartOf = [$item->isPartOf];
 			}
-			$item->isPartOf[] = $row->TitleID;		
+			$item->isPartOf[] = $config['bhl'] . '/bibliography/' . $row->TitleID;		
 		}
 	}
 	
@@ -319,11 +324,18 @@ function get_item ($ItemID )
 	$o = 'https://archive.org/details/' . $item->barcode;		
 	$triples[] = [$s, $p, $o];	
 	
-	// item is part of a title
+	// item is part of a title, or of more than one
+	//
+	// One triple per title. Handing dump_triples() the array itself wrote the literal text
+	// "Array" into the output as the object, which is not valid N-Triples and lost the link
+	// for every one of the 9,050 items that have more than one.
 	$s = $item->id;
 	$p = 'https://schema.org/isPartOf';
-	$o = $item->isPartOf;		
-	$triples[] = [$s, $p, $o];	
+
+	foreach (array_unique((array)$item->isPartOf) as $o)
+	{
+		$triples[] = [$s, $p, $o];
+	}
 	
 	if (isset($item->provider))
 	{
@@ -360,8 +372,20 @@ function get_item_pages($ItemID = null)
 	global $config;
 	
 	// Item pages
+	//
+	// The join is against a deduplicated item rather than item itself. 9,050 items have two
+	// rows there, one per title they belong to, and joining the table raw fetches every page
+	// of those items twice. The output is unaffected -- pages are collected into $pages by
+	// PageID below, so the duplicate rows collapse before any triple is emitted -- but there
+	// is no reason to carry them through the query. Deduplicating the small side is 324,356
+	// rows down to 315,211, and every ItemID has exactly one BarCode, so it cannot drop a
+	// row.
+	//
+	// Not a DISTINCT on the result: that would sort all 68.7 million pages, and it would also
+	// be wrong, since 4,773,027 pages legitimately appear several times carrying different
+	// PageTypeName values, which is what the keywords below collect.
 	$sql = 'SELECT PageID, ItemID, BarCode, SequenceOrder, PagePrefix, PageNumber, PageTypeName FROM page';
-	$sql .= ' INNER JOIN item USING(ItemID)';
+	$sql .= ' INNER JOIN (SELECT DISTINCT ItemID, BarCode FROM item) AS item USING(ItemID)';
 	
 	if ($ItemID)
 	{
@@ -868,6 +892,8 @@ if (0)
 if (1)
 {
 	$ItemID = 223011;
+	
+	$ItemID = 19421; // Magazine of natural history and journal of zoology, botany, mineralog v. 1
 	get_item($ItemID);
 	
 	echo "\n\n";

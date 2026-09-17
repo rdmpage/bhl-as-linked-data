@@ -2,6 +2,18 @@
 
 error_reporting(E_ALL);
 
+// Send warnings and notices to stderr, not stdout.
+//
+// These scripts write N-Triples to stdout, and PHP's default display_errors puts errors on
+// the same stream -- so a single notice mid-run lands in the middle of the .nt file and the
+// whole thing stops parsing. A full page-level pass is ~800 million triples, far too much to
+// eyeball, so the corruption would only show up when the load failed. Only meaningful under
+// the CLI SAPI; elsewhere 'stderr' is not a valid value.
+if (php_sapi_name() === 'cli')
+{
+	ini_set('display_errors', 'stderr');
+}
+
 $config['aws'] = 'https://bhl-open-data.s3.us-east-2.amazonaws.com';
 $config['bhl']  = 'https://www.biodiversitylibrary.org';
 $config['ia']  = 'https://archive.org/details';
