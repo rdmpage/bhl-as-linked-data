@@ -1,3 +1,11 @@
 .DS_Store
 
+/junk/
+/iiif/junk
+
 /vendor/
+
+# built by bhl-scandata/04-export-canvas.php, 2.7 GB
+canvas.sqlite
+canvas.sqlite-shm
+canvas.sqlite-wal
