@@ -47,7 +47,10 @@ $filename = dirname(__FILE__) . '/scandata/magazineofnatura01loud.xml';
 		$include = true; // only true if scan data says include the page
 		
 		// include?
-		foreach($xpath->query ('addToAccessFormats', $page) as $node)
+		// Namespace-qualified alternative as well: the older scribe format sets a
+		// default namespace, and a bare addToAccessFormats matches nothing there —
+		// so every colour card and deleted leaf silently became a canvas.
+		foreach($xpath->query ('(addToAccessFormats|scribe:addToAccessFormats)', $page) as $node)
 		{
 			$include = ($node->firstChild->nodeValue == 'true' ? true : false);
 		}	
