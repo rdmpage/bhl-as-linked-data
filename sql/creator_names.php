@@ -15,8 +15,9 @@
 // parse_creator_name() pulls those apart into a display name, a given/family split,
 // and the set of alternative labels the heading implies - "N. C. Kindberg" and
 // "Nils Conrad Kindberg" are the same person written two ways, and both need to be
-// findable. The components map onto foaf/schema.org directly, which is the point:
-// name -> foaf:name, family -> foaf:familyName, given -> foaf:givenName,
+// findable. The components are named for the schema.org properties they map onto, which
+// is the point: name, familyName, givenName, additionalName, honorificPrefix,
+// honorificSuffix, birthDate and deathDate all carry straight through to schema:, and
 // alternatives -> skos:altLabel.
 //
 // Corporate and meeting headings are left alone apart from cleanup. Their dates are
@@ -215,8 +216,8 @@ function creator_initials($forename)
 function creator_split_dates($s, &$dates)
 {
 	$dates = array(
-		'birth'         => null,
-		'death'         => null,
+		'birthDate'     => null,
+		'deathDate'     => null,
 		'floruit_start' => null,
 		'floruit_end'   => null,
 		'qualifier'     => null,
@@ -290,8 +291,8 @@ function creator_split_dates($s, &$dates)
 		}
 		else
 		{
-			$dates['birth'] = $from;
-			$dates['death'] = $to;
+			$dates['birthDate'] = $from;
+			$dates['deathDate'] = $to;
 		}
 	}
 	else if (preg_match('/\d{1,4}/u', $text, $ym))
@@ -304,11 +305,11 @@ function creator_split_dates($s, &$dates)
 		}
 		else if ($dates['qualifier'] === 'death')
 		{
-			$dates['death'] = $year;
+			$dates['deathDate'] = $year;
 		}
 		else
 		{
-			$dates['birth'] = $year;
+			$dates['birthDate'] = $year;
 		}
 	}
 
@@ -501,32 +502,39 @@ function creator_infer_kind($name)
 // parse_creator() takes a CreatorType instead and handles this for you.
 //
 // Returns an array with:
-//   kind         personal | corporate | meeting
-//   name         the display name, natural order, fullest form available
-//   family       family name, or null
-//   given        given name(s), fullest form available, or null
-//   initials     given name(s) reduced to initials, or null
-//   honorific    "Sir", "Mrs" ... stripped out of name, or null
-//   suffix       "Jr.", "III" ... or null
-//   alternatives distinct other ways of writing the same name
-//   dates        birth / death / floruit_start / floruit_end / qualifier /
-//                uncertain / text
-//   raw          the input, cleaned of invisible characters
+//   kind            personal | corporate | meeting
+//   name            the display name, natural order, fullest form available
+//   familyName      family name, or null
+//   givenName       first given name, or null
+//   additionalName  middle name(s), or null
+//   initials        given name(s) reduced to initials, or null - the whole given name,
+//                   so "Lawrence Morris" gives "L. M." and not just "L."
+//   honorificPrefix "Sir", "Mrs" ... stripped out of name, or null
+//   honorificSuffix "Jr.", "III" ... or null
+//   alternatives    distinct other ways of writing the same name
+//   dates           birthDate / deathDate / floruit_start / floruit_end / qualifier /
+//                   uncertain / text
+//   raw             the input, cleaned of invisible characters
+//
+// Keys are schema.org property names where schema.org has one. initials, alternatives,
+// dates, kind and raw have no schema.org equivalent and keep descriptive names; within
+// dates, only birthDate and deathDate are schema.org terms.
 function parse_creator_name($name, $kind = null)
 {
 	$raw = creator_clean_string($name);
 
 	$result = array(
-		'kind'         => $kind,
-		'name'         => $raw,
-		'family'       => null,
-		'given'        => null,
-		'initials'     => null,
-		'honorific'    => null,
-		'suffix'       => null,
-		'alternatives' => array(),
-		'dates'        => null,
-		'raw'          => $raw
+		'kind'            => $kind,
+		'name'            => $raw,
+		'familyName'      => null,
+		'givenName'       => null,
+		'additionalName'  => null,
+		'initials'        => null,
+		'honorificPrefix' => null,
+		'honorificSuffix' => null,
+		'alternatives'    => array(),
+		'dates'           => null,
+		'raw'             => $raw
 	);
 
 	if ($raw === '')
@@ -586,13 +594,13 @@ function parse_creator_name($name, $kind = null)
 
 		if (in_array($first, $suffixes, true))
 		{
-			$result['suffix'] = $field;
+			$result['honorificSuffix'] = $field;
 		}
 		else if (in_array($first, $honorifics, true)
 			|| preg_match('/^\d+(?:st|nd|rd|th|d)\s+\p{L}/u', $field)
 			|| preg_match('/^\p{Ll}/u', $field))
 		{
-			$result['honorific'] = $field;
+			$result['honorificPrefix'] = $field;
 		}
 		else if ($given === null)
 		{
@@ -608,27 +616,27 @@ function parse_creator_name($name, $kind = null)
 
 	// A peerage can ride on the given name with no comma to mark it off:
 	// "Hugh Fortescue 3rd earl" -> given "Hugh Fortescue", honorific "3rd earl"
-	if ($given !== null && $result['honorific'] === null)
+	if ($given !== null && $result['honorificPrefix'] === null)
 	{
 		if (preg_match('/^(.+?)\s+(\d+(?:st|nd|rd|th|d)\s+\p{L}.*)$/u', $given, $hm))
 		{
 			$given = creator_trim_punct($hm[1]);
-			$result['honorific'] = creator_trim_punct($hm[2]);
+			$result['honorificPrefix'] = creator_trim_punct($hm[2]);
 		}
 	}
 
 	// A suffix can also ride on the end of the given name with no comma: "John W. Jr"
-	if ($given !== null && $result['suffix'] === null)
+	if ($given !== null && $result['honorificSuffix'] === null)
 	{
 		if (preg_match('/^(.*?)[\s,]+((?:' . implode('|', $suffixes) . ')\.?)$/ui', $given, $sm))
 		{
 			$given = creator_trim_punct($sm[1]);
-			$result['suffix'] = $sm[2];
+			$result['honorificSuffix'] = $sm[2];
 		}
 	}
 
-	$result['family'] = ($family === '') ? null : $family;
-	$result['given']  = ($given === '' || $given === null) ? null : $given;
+	$result['familyName'] = ($family === '') ? null : $family;
+	$result['givenName']  = ($given === '' || $given === null) ? null : $given;
 
 	// Decide what the parenthetical was. Usually it expands the initials, in which
 	// case it becomes the given name and the abbreviated form becomes an alternative.
@@ -636,14 +644,14 @@ function parse_creator_name($name, $kind = null)
 
 	if ($paren !== null)
 	{
-		if (creator_is_expansion($paren, $result['given']))
+		if (creator_is_expansion($paren, $result['givenName']))
 		{
-			$abbreviated = $result['given'];
-			$result['given'] = $paren;
+			$abbreviated = $result['givenName'];
+			$result['givenName'] = $paren;
 		}
-		else if ($result['given'] === null && creator_is_expansion($paren, null))
+		else if ($result['givenName'] === null && creator_is_expansion($paren, null))
 		{
-			$result['given'] = $paren;
+			$result['givenName'] = $paren;
 		}
 		else
 		{
@@ -653,10 +661,10 @@ function parse_creator_name($name, $kind = null)
 		}
 	}
 
-	$result['initials'] = creator_initials($result['given']);
+	$result['initials'] = creator_initials($result['givenName']);
 
-	$result['name'] = creator_natural($result['given'], $result['family'],
-		null, $result['suffix']);
+	$result['name'] = creator_natural($result['givenName'], $result['familyName'],
+		null, $result['honorificSuffix']);
 
 	if ($result['name'] === '')
 	{
@@ -667,7 +675,7 @@ function parse_creator_name($name, $kind = null)
 	// and for skos:altLabel, so both orderings and both levels of abbreviation go in.
 	$variants = array();
 
-	$givens = array($result['given'], $abbreviated, $result['initials']);
+	$givens = array($result['givenName'], $abbreviated, $result['initials']);
 
 	foreach ($givens as $g)
 	{
@@ -676,21 +684,21 @@ function parse_creator_name($name, $kind = null)
 			continue;
 		}
 
-		$variants[] = creator_natural($g, $result['family'], null, $result['suffix']);
-		$variants[] = creator_inverted($g, $result['family'], $result['suffix']);
+		$variants[] = creator_natural($g, $result['familyName'], null, $result['honorificSuffix']);
+		$variants[] = creator_inverted($g, $result['familyName'], $result['honorificSuffix']);
 
-		if ($result['honorific'] !== null
-			&& in_array(mb_strtolower(rtrim($result['honorific'], '.'), 'UTF-8'),
+		if ($result['honorificPrefix'] !== null
+			&& in_array(mb_strtolower(rtrim($result['honorificPrefix'], '.'), 'UTF-8'),
 				creator_prefixable_honorifics(), true))
 		{
-			$variants[] = creator_natural($g, $result['family'],
-				$result['honorific'], $result['suffix']);
+			$variants[] = creator_natural($g, $result['familyName'],
+				$result['honorificPrefix'], $result['honorificSuffix']);
 		}
 	}
 
-	if ($result['family'] !== null && $result['given'] === null)
+	if ($result['familyName'] !== null && $result['givenName'] === null)
 	{
-		$variants[] = $result['family'];
+		$variants[] = $result['familyName'];
 	}
 
 	$seen = array($result['name'] => true);
@@ -710,6 +718,26 @@ function parse_creator_name($name, $kind = null)
 	}
 
 	$result['alternatives'] = $alternatives;
+
+	// Split the given name into schema:givenName and schema:additionalName, which schema.org
+	// recommends for middle names: "Lawrence Morris" becomes givenName "Lawrence" and
+	// additionalName "Morris". Hyphenated compounds such as "Jean-Baptiste" are a single
+	// token and stay whole, and a lone given name leaves additionalName null.
+	//
+	// Done last, on purpose. The display name, the initials and every alternative spelling
+	// above are built from the whole given name, so splitting it earlier would drop the
+	// middle name out of all of them.
+	if ($result['givenName'] !== null)
+	{
+		$given_parts = preg_split('/\s+/u', trim($result['givenName']), -1,
+			PREG_SPLIT_NO_EMPTY);
+
+		if (count($given_parts) > 1)
+		{
+			$result['givenName']      = $given_parts[0];
+			$result['additionalName'] = implode(' ', array_slice($given_parts, 1));
+		}
+	}
 
 	return $result;
 }
@@ -787,23 +815,25 @@ function parse_creator_type($type)
 	{
 		$result['kind']      = 'personal';
 		$result['label']     = 'person';
-		$result['rdf_class'] = 'foaf:Person';
+		$result['rdf_class'] = 'schema:Person';
 	}
 	else if (strpos($t, 'corporate') !== false)
 	{
 		$result['kind']      = 'corporate';
 		$result['label']     = 'organization';
-		$result['rdf_class'] = 'foaf:Organization';
+		$result['rdf_class'] = 'schema:Organization';
 	}
 	else if (strpos($t, 'meeting') !== false)
 	{
 		// MARC 111/711 is a named meeting - a congress, a symposium, an expedition.
-		// That is an event, not an agent, so it gets bibo:Conference rather than
-		// foaf:Organization. Worth knowing before generating RDF: these are the
+		// That is an event, not an agent, so it gets schema:Event rather than
+		// schema:Organization. schema.org has no Conference class, so Event is as close
+		// as the vocabulary goes; bibo:Conference would be more precise if a second
+		// vocabulary were acceptable. Worth knowing before generating RDF: these are the
 		// headings where "creator" and "thing that happened" are the same record.
 		$result['kind']      = 'meeting';
 		$result['label']     = 'conference';
-		$result['rdf_class'] = 'bibo:Conference';
+		$result['rdf_class'] = 'schema:Event';
 	}
 
 	// Main entry = the work is principally by this creator. Added entry = they are
@@ -887,8 +917,8 @@ function parse_creator($name, $type = null)
 	// class follow its answer rather than the type's.
 	$labels = array('personal' => 'person', 'corporate' => 'organization',
 		'meeting' => 'conference');
-	$classes = array('personal' => 'foaf:Person', 'corporate' => 'foaf:Organization',
-		'meeting' => 'bibo:Conference');
+	$classes = array('personal' => 'schema:Person', 'corporate' => 'schema:Organization',
+		'meeting' => 'schema:Event');
 
 	$r['label']     = isset($labels[$r['kind']]) ? $labels[$r['kind']] : null;
 	$r['rdf_class'] = isset($classes[$r['kind']]) ? $classes[$r['kind']] : null;

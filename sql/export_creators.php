@@ -3,11 +3,14 @@
 
 // Export every BHL creator as one record per CreatorID, ready for RDF modelling.
 //
-//   php export_creators.php --db bhl.db > creators.json
-//   php export_creators.php --db bhl.db --ndjson > creators.ndjson
-//   php export_creators.php --db bhl.db --limit 50 --pretty
+//   php export_creators.php > creators.json
+//   php export_creators.php --ndjson > creators.ndjson
+//   php export_creators.php --limit 50 --pretty
 //
-// Needs creator_names.php beside it - copy both files together.
+// The database is whichever one sqlite.php configures, so this script does not care where
+// bhl.db actually lives, nor which directory it is run from.
+//
+// Needs creator_names.php and sqlite.php beside it.
 //
 // Creators come from BOTH credit tables, because there is no master creator table in
 // BHL: `creator` holds title-level credits (79,892 creators) and `partcreator` holds
@@ -20,10 +23,10 @@
 // which is easier to pipe through jq or process a line at a time.
 
 require_once(dirname(__FILE__) . '/creator_names.php');
+require_once(dirname(__FILE__) . '/sqlite.php');
 
 //----------------------------------------------------------------------------------------
-$opt = array('db' => 'bhl.db', 'out' => null, 'ndjson' => false, 'pretty' => false,
-	'limit' => 0);
+$opt = array('out' => null, 'ndjson' => false, 'pretty' => false, 'limit' => 0);
 
 $args = array_slice($argv, 1);
 
@@ -31,7 +34,6 @@ for ($i = 0; $i < count($args); $i++)
 {
 	switch ($args[$i])
 	{
-		case '--db':     $opt['db']     = $args[++$i]; break;
 		case '--out':    $opt['out']    = $args[++$i]; break;
 		case '--limit':  $opt['limit']  = (int)$args[++$i]; break;
 		case '--ndjson': $opt['ndjson'] = true; break;
@@ -40,7 +42,8 @@ for ($i = 0; $i < count($args); $i++)
 		case '-h':
 		case '--help':
 			fwrite(STDERR,
-				"usage: export_creators.php [--db bhl.db] [--out FILE] [--ndjson] [--pretty] [--limit N]\n" .
+				"usage: export_creators.php [--out FILE] [--ndjson] [--pretty] [--limit N]\n" .
+				"       reads the database configured in sqlite.php\n" .
 				"       writes to stdout unless --out is given; progress goes to stderr\n");
 			exit(0);
 
@@ -50,9 +53,14 @@ for ($i = 0; $i < count($args); $i++)
 	}
 }
 
-if (!file_exists($opt['db']))
+// sqlite.php has set $config['pdo'] to a DSN and already opened $pdo on it. file_exists
+// wants a path, and the DSN is "sqlite:/path/to/bhl.db", so trim the scheme off to report
+// a missing database in terms of where it was actually looked for.
+$db_path = preg_replace('/^sqlite:/', '', $config['pdo']);
+
+if (!file_exists($db_path))
 {
-	fwrite(STDERR, "no database at " . $opt['db'] . "\n");
+	fwrite(STDERR, "no database at " . $db_path . "\n");
 	exit(1);
 }
 
@@ -115,7 +123,8 @@ function unpack_pairs($s)
 }
 
 //----------------------------------------------------------------------------------------
-$pdo = new PDO('sqlite:' . $opt['db']);
+// $pdo comes from sqlite.php; this script only needs it to raise rather than return false
+// on error
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $fh = ($opt['out'] === null) ? STDOUT : fopen($opt['out'], 'w');
@@ -166,8 +175,8 @@ while ($row = $rows->fetch(PDO::FETCH_ASSOC))
 
 	$labels = array('personal' => 'person', 'corporate' => 'organization',
 		'meeting' => 'conference');
-	$classes = array('personal' => 'foaf:Person', 'corporate' => 'foaf:Organization',
-		'meeting' => 'bibo:Conference');
+	$classes = array('personal' => 'schema:Person', 'corporate' => 'schema:Organization',
+		'meeting' => 'schema:Event');
 
 	// Main/Added is a property of the CREDIT, not of the creator - 10,007 creators are
 	// a main entry on one title and an added entry on another - so it is reported per
@@ -217,19 +226,30 @@ while ($row = $rows->fetch(PDO::FETCH_ASSOC))
 
 	$record = array(
 		'id'           => (int)$row['id'],
-		'name'         => $row['name'],
+
+		// schema:name is the display form - natural order, fullest spelling available -
+		// and the heading exactly as BHL holds it goes to schema:disambiguatingDescription,
+		// which is where the dates, honorifics and qualifiers that distinguish two people
+		// of the same name survive. Cleaned only of invisible characters; nothing else is
+		// dropped, so the original is always recoverable from the record.
+		'name'         => $p['name'],
+		'disambiguatingDescription' => $p['raw'],
+
 		'kind'         => $p['kind'],
 		'kind_stated'  => $kind_stated,
 		'label'        => isset($labels[$p['kind']]) ? $labels[$p['kind']] : null,
 		'rdf_class'    => isset($classes[$p['kind']]) ? $classes[$p['kind']] : null,
+
+		// Keys are schema.org property names; initials and note have no schema.org
+		// equivalent and keep descriptive ones.
 		'parsed'       => array(
-			'name'      => $p['name'],
-			'family'    => $p['family'],
-			'given'     => $p['given'],
-			'initials'  => $p['initials'],
-			'honorific' => $p['honorific'],
-			'suffix'    => $p['suffix'],
-			'note'      => isset($p['note']) ? $p['note'] : null
+			'familyName'      => $p['familyName'],
+			'givenName'       => $p['givenName'],
+			'additionalName'  => $p['additionalName'],
+			'initials'        => $p['initials'],
+			'honorificPrefix' => $p['honorificPrefix'],
+			'honorificSuffix' => $p['honorificSuffix'],
+			'note'            => isset($p['note']) ? $p['note'] : null
 		),
 		'alternatives' => $p['alternatives'],
 		'dates'        => $p['dates'],
