@@ -12,6 +12,164 @@ One goal, for example, is to be be able to generate a IIIF manifest for a BHL it
 Wherever possible we use [schema.org](https://schema.org) with the **https** protocol (see [Is it http://schema.org or https://schema.org?](https://docs.nde.nl/blog/2026/03/09/schema.org/)).
 
 
+## Creators
+
+BHL has no master creator table. Credits live in two places: `creator` holds title-level
+credits and `partcreator` holds article-level ones, and they overlap by only 10,149 of the
+241,475 people and organisations involved. Either table on its own misses most of them —
+`creator` knows 79,892, `partcreator` 171,732 — so anything creator-shaped has to read both.
+No CreatorID carries more than one spelling of its name, so the name is a clean function of
+the id and the two tables cannot disagree about it.
+
+`sql/creator_names.php` parses a BHL creator heading; `sql/export_creators.php` reads the
+database configured in `sql/sqlite.php` and writes one record per CreatorID:
+
+```sh
+php sql/export_creators.php > creators.json          # a JSON object keyed by CreatorID
+php sql/export_creators.php --ndjson > creators.ndjson   # one record per line
+```
+
+The export is written as a stream rather than assembled in memory, because the full run is
+~241k records.
+
+A heading is not just a name. It arrives with life dates, a qualifier on those dates, an
+expansion of the initials and an honorific, all run together — `Flannery, Tim F. (Tim
+Fridtjof), 1956-` — and the parser pulls those apart into components named for the
+schema.org properties they map onto, so the RDF needs no translation layer. `familyName`,
+`givenName`, `additionalName`, `honorificPrefix`, `honorificSuffix`, `birthDate` and
+`deathDate` all carry straight through to `schema:`. `initials`, `alternatives` and the
+floruit dates have no schema.org equivalent and keep descriptive names.
+
+`name` is the display form and `disambiguatingDescription` keeps the heading exactly as BHL
+holds it, cleaned only of invisible characters and normalised to NFC. That is deliberate:
+the dates and honorifics that tell two people of the same name apart survive there, so
+nothing the catalogue recorded is lost by preferring a tidy display name.
+
+`additionalName` is split off the given name last of all. The display name, the initials and
+every alternative spelling are built from the whole given name, so splitting earlier would
+drop the middle name out of all of them — `initials` for "Lawrence Morris" is still `L. M.`,
+not `L.`, and `givenName` + `additionalName` round-trips to the original. 47% of creators
+have one.
+
+### How far to trust the catalogue
+
+`CreatorType` is two MARC facets welded together with `" - "`: an entry type (`Main`, MARC
+1XX, or `Added`, 7XX) and a name type (personal, corporate, meeting). It is worth knowing
+how reliable that is before building on it.
+
+Mostly it holds up. `creator_infer_kind()` guesses the kind from the shape of the name alone,
+entirely independently of the catalogue, and agrees with the stated type on 95.47% of the
+380,555 typed rows. Sampling the 4.53% that disagree shows it cuts both ways rather than
+indicting MARC: the largest bucket is corporate headings the heuristic misreads as people
+("Cadell & Davies"), and the next is mononyms it cannot place ("Gorachaud."). Disagreement is
+a flag, not a verdict.
+
+There are outright errors, but few: 43 creators typed `Personal` whose names are plainly
+organisations ("British Museum (Natural History)", "Zoological Society of London.") and 10
+that are plainly events ("United States Exploring Expedition 1838-1842"). That is 0.07% of
+79,892, and cheap to fix by hand.
+
+The problems that actually matter are structural. 223 creators are typed inconsistently
+across their own rows, with no row marked authoritative — `creator_kind_from_types()` takes
+the majority and, on a tie, the first kind seen. 10,007 are a main entry on one title and an
+added entry on another, so "is this person an author or a contributor" has no answer until
+you say *on which title*; entry is a property of the credit, not of the creator, and the
+export reports it per CreatorType with counts rather than flattening it. And 554,656 credits
+— 59% of the total — come from `partcreator`, which has no `CreatorType` column at all, so
+for most credits MARC contributes nothing. Where BHL said nothing the name shape decides the
+kind, and `entry`, `role` and `rdf_property` are left `null` rather than defaulted, so an
+untyped credit never silently becomes a `creator`.
+
+### Example
+
+`https://www.biodiversitylibrary.org/creator/3044`, trimmed of the null fields:
+
+```json
+{
+  "id": 3044,
+  "name": "Tim Fridtjof Flannery",
+  "disambiguatingDescription": "Flannery, Tim F. (Tim Fridtjof), 1956-",
+  "kind": "personal",
+  "kind_stated": true,
+  "label": "person",
+  "rdf_class": "schema:Person",
+  "parsed": {
+    "familyName": "Flannery",
+    "givenName": "Tim",
+    "additionalName": "Fridtjof",
+    "initials": "T. F."
+  },
+  "alternatives": [
+    "Flannery, Tim Fridtjof",
+    "Tim F. Flannery",
+    "Flannery, Tim F.",
+    "T. F. Flannery",
+    "Flannery, T. F."
+  ],
+  "dates": { "birthDate": 1956, "deathDate": null, "uncertain": false, "text": "1956" },
+  "types": [
+    { "type": "Main - Personal Name", "entry": "main", "role": "author", "count": 1 }
+  ],
+  "credits": { "titles": 1, "parts": 10, "main": 1, "added": 0 },
+  "identifiers": {
+    "DLC": ["n85147539"],
+    "ORCID": ["https://orcid.org/0000-0002-3005-8305"],
+    "ResearchGate Profile": ["Timothy_Flannery2"],
+    "SNAC ARK": ["w63f5xdp"],
+    "VIAF": ["69097200"],
+    "Wikidata": ["Q728660"]
+  }
+}
+```
+
+`identifiers` is grouped by scheme because a creator can carry more than one value for the
+same one, and it is the obvious starting point for `owl:sameAs`. `alternatives` are for
+matching and for `skos:altLabel` — both orderings and both levels of abbreviation, since
+"N. C. Kindberg" and "Nils Conrad Kindberg" are the same person written two ways and both
+need to be findable.
+
+### Linking works to creators
+
+The work links are deliberately *not* in the JSON. They are edges rather than properties of
+the creator, there are 933,515 of them against 241,475 creators, and they fall out of two
+queries:
+
+```sql
+-- title links. Main wins where BHL records a pair as both
+SELECT CreatorID,
+       CASE WHEN SUM(CreatorType LIKE 'Main%') > 0 THEN 'creator'
+            ELSE 'contributor' END AS role,
+       TitleID
+FROM creator
+GROUP BY CreatorID, TitleID;
+
+-- part links; partcreator has no CreatorType, so these are creator by fiat
+SELECT DISTINCT CreatorID, PartID FROM partcreator;
+```
+
+giving
+
+```
+<.../bibliography/43>   schema:creator     <.../creator/1> .
+<.../bibliography/2760> schema:contributor <.../creator/1> .
+<.../part/182775>       schema:creator     <.../creator/5597> .
+```
+
+Note `/bibliography/{TitleID}`, not `/title/` — that is the URI `sql/sql2rdf.php` builds for
+a title, and the links have to agree with it to join up.
+
+The `GROUP BY` in the first query is doing real work. 1,682 creator+title pairs — 0.444% of
+the 378,859 distinct pairs — are recorded by BHL as both `Main` and `Added`, and without it
+each would emit `schema:creator` and `schema:contributor` for the same pair, claiming and
+disclaiming the work at once. 380,541 triples become 378,859. Nothing is formally violated by
+leaving them in, since the two predicates are not disjoint, but a query for "who created
+this" would also find them listed as a contributor.
+
+The seven `Not Specified` pairs fall to `contributor` under that `CASE`; flip the `ELSE` if
+they should go the other way, as they are genuinely untyped rather than added entries. And
+the part links are the honest weak point: `creator` there is an assumption, not something BHL
+recorded, and it covers 59% of all credits.
+
 ## IIIF
 
 Use IIIF Presentation API version 3 to model a BHL item. The key idea behind the IIIF model is that there is a virtual page (the “canvas”) which we annotate. **Everything is an annotation**, the page image, the OCR text, etc. This enables us to think about having multiple page images for the same page (e.g, an original scan image, a highly compressed black and white image, etc.), as well as having multiple text annotations (for example, OCR output provided by Internet Archive, as well as more powerful LLM-based tools). We can also have annotations for blocks of text or words, such as taxonomic names. The model allows for different versions of the data.
@@ -19,6 +177,83 @@ Use IIIF Presentation API version 3 to model a BHL item. The key idea behind the
 To explore this idea, we take an Internet Archive scandata.xml file and convert it to a IIIF `manifest.json` file. The canvas (virtual page) dimensions are the cropbox width and height in the scandata file, and we can compute the approximate image sizes for the _thumbnail and _large WEBP images stored on [AWS](https://registry.opendata.aws/bhl-open-data/) based on standard widths of 150 and 930 pixels, respectively. Alternatively we can use the _full image which has the same dimensions as the scan.
 
 We can treat OCR text as a canvas-level annotation, and also add smaller annotations (such as location of taxonomic names on a page). The canvas dimensions are the same as page dimensions in the Internet Archive OCR outputs, so we can use those coordinates directly. Note that for LLM-based OCR tools we will may have text-based rather than coordinate-based annotations, as the output from those tools often do not include word-level coordinates.
+
+### Canvas dimensions
+
+Parsing a `scandata.xml` file per item works, but it means fetching one file at a
+time and re-deriving the same facts on every run. The [bhl-scandata](https://github.com/rdmpage/bhl-scandata)
+repo has already done that pass over all 347,130 scandata files in the bucket, so
+`iiif/canvas2rdf.php` reads the answer out of a database instead. It emits exactly
+the triples `iiif/scan2rdf.php` does — the two were run against every scandata
+file in `iiif/scandata/` and agree triple for triple on all eight — but it answers
+in 0.07s for any of the 346,858 items in the database, rather than only for the
+ones whose XML has been downloaded.
+
+```sh
+php iiif/canvas2rdf.php journalofarach3832010amer > item.nt
+```
+
+The database is `canvas.sqlite` in the root of this repo, one row per canvas:
+
+```sql
+CREATE TABLE canvas
+(
+    barcode TEXT NOT NULL,
+    seq     INTEGER NOT NULL,
+    leaf    INTEGER NOT NULL,
+    width   INTEGER,
+    height  INTEGER,
+    PRIMARY KEY (barcode, seq)
+) WITHOUT ROWID;
+```
+
+66,052,352 rows, 2.7 GB, and not in git. Rebuild it with `php
+04-export-canvas.php --out=/path/to/bhl-as-linked-data/canvas.sqlite` in the
+bhl-scandata repo, which takes about six minutes and needs that repo's
+`pages.sqlite` (13 GB, on the external volume).
+
+Three things are already applied, so nothing downstream has to remember them:
+
+- Leaves excluded from the access formats are **not in the table**. Colour cards,
+  targets and leaves marked `Delete` are photographed but never shown, and a
+  manifest built without consulting `addToAccessFormats` shows them anyway.
+- `seq` is a 1-based counter over the leaves that remain, and it is what appears
+  in the `_thumb`/`_large`/`_full` derivative filenames. It is **not** `leafNum`.
+  The two diverge from the first excluded leaf onwards, and because both numbers
+  usually resolve, the wrong one returns a different page's image with HTTP 200
+  rather than a 404. `leaf` is kept alongside as the link back to the scan data
+  and to the OCR.
+- `width` and `height` are the `cropBox`, which is the size of the image actually
+  served and the coordinate space IA's OCR uses, falling back to
+  `origWidth`/`origHeight` for the older scribe-format items that have no cropBox.
+
+A dimension the scan data does not give is `NULL`, never `0` — 5,662 leaves carry
+zeroes in the source, and a zero would assert a canvas size that is wrong rather
+than one that is missing. `canvas2rdf.php` skips those canvases and says so on
+stderr.
+
+Keying on barcode rather than on the `<bookId>` element the scan data carries is
+safe for BHL: the two are identical for every BHL item, and also identical to the
+Internet Archive identifier the canvas URIs are built from. They do diverge for
+the ~34,000 items in the bucket that BHL does not hold — `121030` is
+`McGillLibrary-121030-1534`, the Springer items are prefixed `springer_` — and for
+those the derivatives live under the bookId, not the barcode.
+
+Comparing the two generators turned up a bug in `scan2rdf.php`, now fixed: its
+`addToAccessFormats` test had no namespace-qualified alternative, so in the older
+scribe format — which declares `xmlns="http://archive.org/scribe/xml"` — the test
+matched nothing and every excluded leaf became a canvas anyway. It affected
+`magazineofnatura01loud`, whose last four leaves are colour and white cards, and
+the manifest and `.nt` in this repo still carry them. The failure is worse than
+four spurious canvases at the end: an excluded leaf in the *middle* of an item
+shifts every canvas after it against its image, and both numbers resolve, so the
+manifest looks right and shows the wrong page. `scan.php` has the same blind spot
+in a louder form — it does not register the namespace at all, so a scribe-format
+item yields no canvases rather than wrong ones.
+
+Coverage is 312,575 of the 315,211 barcodes in BHL's item table. The 2,636 without
+scandata have no dimensions here at all; `iiif.archive.org` serves manifests with
+dimensions already filled in and is the obvious fallback.
 
 ### IIIF viewers
 
