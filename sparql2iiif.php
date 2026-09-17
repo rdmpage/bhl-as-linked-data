@@ -261,8 +261,6 @@ function item_manifest_query($item)
 	  ?canvas <http://www.w3.org/2003/12/exif/ns#width> ?width .
 	  ?canvas <http://www.w3.org/2003/12/exif/ns#height> ?height .
 
-#	  OPTIONAL { ?page <https://schema.org/name> ?label . }
-	  
 	  ?page <https://schema.org/image> ?image .
 	  
 	  ?page <https://schema.org/thumbnailUrl> ?thumbnail .
@@ -293,6 +291,18 @@ function item_manifest_query($item)
 
 	    BIND(IRI(CONCAT(STR(?canvas), "/ocr")) AS ?ocr_ap)
 	    BIND(IRI(CONCAT(STR(?canvas), "/ocr/a1")) AS ?ocr_anno)
+	  # Page label, e.g. "53" or "Title Page". OPTIONAL because not every page is named -- 12
+	  # of the 161 in item 256454 are not -- and a canvas with no label beats no canvas.
+	  #
+	  # LAST, after the BINDs, which is the opposite of where the required patterns go and
+	  # matters just as much. By this point the left side of the join is the handful of
+	  # solutions the query has already found, so the left join is trivial. Placed up with the
+	  # other triple patterns it is planned against all 1,904,112 schema:name triples in the
+	  # store instead: 115s against 0.24s here, for the same 161 solutions.
+	  #
+	  # So the rule for these queries is: required patterns first, then BINDs, then OPTIONALs.
+	  OPTIONAL { ?page <https://schema.org/name> ?label . }
+
 	  
 	}
 	';	
@@ -457,6 +467,18 @@ function part_manifest_query($part)
 
 	  BIND(IRI(CONCAT(STR(?canvas), "/ocr")) AS ?ocr_ap)
 	  BIND(IRI(CONCAT(STR(?canvas), "/ocr/a1")) AS ?ocr_anno)
+	  # Page label, e.g. "53" or "Title Page". OPTIONAL because not every page is named -- 12
+	  # of the 161 in item 256454 are not -- and a canvas with no label beats no canvas.
+	  #
+	  # LAST, after the BINDs, which is the opposite of where the required patterns go and
+	  # matters just as much. By this point the left side of the join is the handful of
+	  # solutions the query has already found, so the left join is trivial. Placed up with the
+	  # other triple patterns it is planned against all 1,904,112 schema:name triples in the
+	  # store instead: 115s against 0.24s here, for the same 161 solutions.
+	  #
+	  # So the rule for these queries is: required patterns first, then BINDs, then OPTIONALs.
+	  OPTIONAL { ?page <https://schema.org/name> ?label . }
+
 	}
 	';
 	$sparql = str_replace('<PART>', '<' . $part . '>', $sparql);
@@ -713,7 +735,9 @@ function part_manifest($part)
 //----------------------------------------------------------------------------------------
 
 //$manifest = item_manifest('https://www.biodiversitylibrary.org/item/256454');
-$manifest = part_manifest('https://www.biodiversitylibrary.org/part/229237');
+//$manifest = item_manifest('https://www.biodiversitylibrary.org/item/251163');
+$manifest = item_manifest('https://www.biodiversitylibrary.org/item/281446');
+//$manifest = part_manifest('https://www.biodiversitylibrary.org/part/125034');
 
 if ($manifest === null)
 {

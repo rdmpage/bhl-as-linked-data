@@ -353,13 +353,52 @@ On the question of JSON-LD tools quietly fetching contexts over the network: not
 
 ### Silent failures in SPARQL
 
-Two failure modes cost enough time to be worth recording, because neither produces an error — a whole property simply goes missing from the manifest.
+Three failure modes cost enough time to be worth recording, because none produces an error — a whole property simply goes missing from the manifest.
 
 `BIND` inside an `OPTIONAL` cannot see variables bound outside it. An `OPTIONAL` group is evaluated on its own before the left join, so an outer `?manifest` or `?canvas` is unbound within it, `CONCAT` raises a type error on the unbound argument, and every template triple using the result disappears. Any such `BIND` has to re-state the patterns binding the variables it reads.
 
 `CONCAT` also rejects non-string literals. `schema:position` is an `xsd:integer`, so it needs wrapping in `STR()`; passing it raw fails the same silent way.
 
-The general lesson is that when a property is missing from the framed manifest, an unbound `BIND` is a likelier culprit than the framing. It is also worth checking what the triple store actually holds before debugging a query — the store here is grown incrementally, so a query can be correct and still return nothing.
+A third silent failure has the same shape but a different cause: an unbound variable in the
+`CONSTRUCT` template. The item query kept its page label behind a commented-out `OPTIONAL`
+while still emitting `?canvas rdfs:label ?label`, so `?label` never bound and every label
+triple was quietly dropped. Nothing errors — the manifest is simply built without labels, and
+a viewer shows a run of unnamed pages. The same applies to any template triple whose object
+comes from a pattern that has been disabled or forgotten.
+
+The general lesson is that when a property is missing from the framed manifest, an unbound
+variable — a `BIND` that failed, or a pattern that is not there — is a likelier culprit than
+the framing. It is also worth checking what the triple store actually holds before debugging a
+query: the store here is grown incrementally, so a query can be correct and still return
+nothing.
+
+### Pattern order, which decides whether a query takes a second or two minutes
+
+Oxigraph plans these queries broadly in the order they are written, so where a pattern sits
+changes the runtime by two orders of magnitude. Three measurements from `sparql2iiif.php`
+against the BHL Lite store, each returning exactly the same solutions as the fast version:
+
+| | placed early | placed late |
+|---|---|---|
+| OCR triple patterns (required) | **0.22s**, before the `BIND`s | 76s, after them |
+| page label `OPTIONAL` | 115s, among the triple patterns | **0.24s**, last of all |
+
+The rule that falls out is **required patterns first, then `BIND`s, then `OPTIONAL`s**, and the
+two halves are opposites, which is what makes it easy to get wrong.
+
+A required pattern belongs before the `BIND`s because Oxigraph evaluates a `BIND` where it
+meets it and joins what follows against the result — so triple patterns written after one are
+matched per solution rather than planned against the indexes. `schema:encoding`,
+`schema:MediaObject` and `encodingFormat "text/plain"` each match around 2.1 million triples
+here, which is the difference between an index lookup and a scan.
+
+An `OPTIONAL` belongs last for the mirror-image reason. By the end of the query the left side
+of the join is the handful of solutions already found, so the left join is trivial; written up
+with the other patterns it is planned against all 1,904,112 `schema:name` triples instead.
+
+Both effects grow with the store, so neither gets better with more data. Dropping redundant
+patterns is not the fix — removing the `rdf:type` from the OCR block, which is implied by
+`schema:encoding` anyway, took 76s to 66s and no further. It is the position that matters.
 
 ## Annotations
 
