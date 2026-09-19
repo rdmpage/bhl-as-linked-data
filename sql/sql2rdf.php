@@ -107,6 +107,8 @@ function get_title($TitleID)
 	$data = db_get($sql);
 	
 	$title = new stdclass;
+	$title->items = [];
+	$title->identifier = [];
 	
 	foreach ($data as $row)
 	{
@@ -119,13 +121,7 @@ function get_title($TitleID)
 		}
 			
 		if (isset($row->IdentifierName))
-		{	
-		
-			if (!isset($title->identifier))
-			{
-				$title->identifier = array();
-			}
-		
+		{			
 			if (!isset($title->identifier[$row->IdentifierName]))
 			{
 				$title->identifier[$row->IdentifierName] = [];
@@ -149,10 +145,31 @@ function get_title($TitleID)
 		$title->doi[] = $row->DOI;
 	}
 	
-	// list of items
-	$title->items = get_items_for_title($TitleID);	
+	// Creators?
+	$sql = 'SELECT CreatorID, CreatorType FROM creator WHERE TitleID=' . $TitleID;	
+
+	$data = db_get($sql);
 	
-	//print_r($title);
+	foreach ($data as $row)
+	{
+		if (preg_match('/^Main/', $row->CreatorType))
+		{
+			$title->creator[] = $row->CreatorID;
+		}
+		else
+		{
+			$title->contributor[] = $row->CreatorID;
+		}
+	}
+	
+	
+	// list of items
+	//$title->items = get_items_for_title($TitleID);	
+	
+	// stderr, not stdout: the triples go to stdout, so print_r() there lands in the middle
+	// of the .nt file and the whole thing stops parsing. Same reason shared.php sends
+	// warnings to stderr.
+	fwrite(STDERR, print_r($title, true));
 	
 	$triples = [];
 	
@@ -182,16 +199,76 @@ function get_title($TitleID)
 		$triples[] = [$s, $p, $o];		
 	}
 	
-	if (isset($title->identifier['ISSN']))
+	// identifiers
+	foreach ($title->identifier as $key => $values)
 	{
-		foreach ($title->identifier['ISSN'] as $issn)
+		switch ($key)
+		{
+			case 'DLC':
+				foreach ($values as $value)
+				{
+					$s = $title->id;
+					$p = 'https://schema.org/sameAs';
+					$o = nice_uri('https://lccn.loc.gov/' . $value);
+					$triples[] = [$s, $p, $o];		
+				}
+				break;
+		
+			case 'ISSN':
+				foreach ($values as $value)
+				{
+					//schema.org property
+					$s = $title->id;
+					$p = 'https://schema.org/issn';
+					$o = '"' . nice_literal($value) . '"';		
+					$triples[] = [$s, $p, $o];	
+					
+					// URI
+					$s = $title->id;
+					$p = 'https://schema.org/sameAs';
+					$o = nice_uri('https://portal.issn.org/resource/ISSN/' . $value);
+					$triples[] = [$s, $p, $o];							
+				}
+				break;
+				
+			case 'OCLC':
+				foreach ($values as $value)
+				{
+					$s = $title->id;
+					$p = 'https://schema.org/sameAs';
+					$o = nice_uri('https://www.worldcat.org/oclc/' . $value);
+					$triples[] = [$s, $p, $o];		
+				}
+				break;
+
+			case 'Wikidata':
+				foreach ($values as $value)
+				{
+					$s = $title->id;
+					$p = 'https://schema.org/sameAs';
+					$o = nice_uri('http://www.wikidata.org/entity/' . $value);
+					$triples[] = [$s, $p, $o];		
+				}
+				break;
+				
+			default:
+				break;
+		}
+	}
+	
+	
+	// DOI
+	if (isset($title->doi))
+	{
+		foreach ($title->doi as $doi)
 		{
 			$s = $title->id;
-			$p = 'https://schema.org/issn';
-			$o = '"' . nice_literal($issn) . '"';		
+			$p = 'https://schema.org/sameAs';
+			$o = nice_uri('https://doi.org/' . strtolower($doi));		
 			$triples[] = [$s, $p, $o];		
 		}
 	}
+	
 	
 	foreach ($title->items as $ItemID => $position)
 	{
@@ -865,29 +942,19 @@ $ItemID = 199416; // frogs peru
 
 
 //----------------------------------------------------------------------------------------
-// Generate RDF for BHL Lite, the subset listed in couchdb-items-titles.json.
+// Read the BHL Lite CouchDB view, returning its item and title ids.
 //
-// The file is a CouchDB view, one row per item: {"id": "item/105897", "key":
-// "bibliography/10088", "value": "item/105897"}. 314 of the 6,557 rows carry a list of
-// bibliographies rather than one, because the item belongs to several -- the same items
-// get_item() builds a multi-valued isPartOf for.
-//
-// Canvas dimensions come from canvas.sqlite via canvas_triples(), keyed on barcode rather
-// than ItemID. Without them a manifest has no canvas sizes and the IIIF CONSTRUCT matches
-// nothing, since it requires exif width and height on every canvas.
-//
-// Writes N-Triples to stdout and progress to stderr, so the two can be separated with a
-// plain redirect.
-function get_bhl_lite($path)
+// One row per item: {"id": "item/105897", "key": "bibliography/10088", "value":
+// "item/105897"}. 314 of the 6,557 rows carry a list of bibliographies rather than one,
+// because the item belongs to several. Returns null if the file is not a view.
+function read_bhl_lite($path)
 {
-	global $config, $pdo;
-
 	$json = json_decode(file_get_contents($path));
 
 	if (!$json || !isset($json->rows))
 	{
 		fwrite(STDERR, "Can't read a CouchDB view from $path\n");
-		return;
+		return null;
 	}
 
 	$items = array();
@@ -908,6 +975,68 @@ function get_bhl_lite($path)
 
 	sort($items);
 	sort($titles);
+
+	return array('items' => $items, 'titles' => $titles);
+}
+
+//----------------------------------------------------------------------------------------
+// Generate RDF for the titles of BHL Lite, and nothing else.
+//
+// get_title() emits only triples about the bibliography and its own list elements -- it
+// names its items but does not describe them -- so this output can be loaded over an
+// existing BHL Lite graph to replace the title triples without touching the 38 million
+// others. That is the point of having it separately: trying richer modelling for titles
+// costs one reload of a few hundred thousand triples rather than a regeneration of
+// everything.
+function get_bhl_lite_titles($path)
+{
+	$view = read_bhl_lite($path);
+
+	if ($view === null)
+	{
+		return;
+	}
+
+	fwrite(STDERR, "BHL Lite titles: " . count($view['titles']) . "\n");
+
+	$n = 0;
+
+	foreach ($view['titles'] as $TitleID)
+	{
+		get_title($TitleID);
+
+		if (++$n % 100 == 0)
+		{
+			fwrite(STDERR, "  $n titles\n");
+		}
+	}
+
+	fwrite(STDERR, "done, $n titles\n");
+}
+
+//----------------------------------------------------------------------------------------
+// Generate RDF for BHL Lite, the subset listed in couchdb-items-titles.json: every title,
+// then every item with its pages, parts and canvases.
+//
+// Canvas dimensions come from canvas.sqlite via canvas_triples(), keyed on barcode rather
+// than ItemID. Without them a manifest has no canvas sizes and the IIIF CONSTRUCT matches
+// nothing, since it requires exif width and height on every canvas.
+//
+// Writes N-Triples to stdout and progress to stderr, so the two can be separated with a
+// plain redirect.
+function get_bhl_lite($path)
+{
+	global $config, $pdo;
+
+	$view = read_bhl_lite($path);
+
+	if ($view === null)
+	{
+		return;
+	}
+
+	$items = $view['items'];
+	$titles = $view['titles'];
 
 	// Barcodes for the canvas lookup, and the set of items that actually exist. The view is
 	// not necessarily the same vintage as bhl.db -- one item is in it and not in the
@@ -971,13 +1100,15 @@ function get_bhl_lite($path)
 	fwrite(STDERR, "done, $n items\n");
 }
 
-if (0)
+if (1)
 {
 	$TitleID = 57881;
+	$TitleID = 149317;
+	//$TitleID = 40366;
 	
 	$title = get_title($TitleID);
 	
-
+	/*
 	foreach ($title->items as $ItemID => $position)
 	{
 		echo "\n\n";
@@ -990,7 +1121,7 @@ if (0)
 		
 		echo "\n\n";
 	}
-
+	*/
 	
 }
 
@@ -1038,9 +1169,21 @@ if (0)
 //   php sql/sql2rdf.php > bhl-lite.nt 2> bhl-lite.log
 //
 // Set the block above to 0 first; both write to stdout.
-if (1)
+if (0)
 {
 	get_bhl_lite(dirname(dirname(__FILE__)) . '/couchdb-items-titles.json');
+}
+
+// BHL Lite titles only, for working on how titles are modelled.
+//
+//   php sql/sql2rdf.php > bhl-lite-titles.nt 2> bhl-lite-titles.log
+//
+// get_title() emits nothing outside the bibliography and its own list elements, so this
+// can be reloaded on its own to replace the title triples without regenerating the 38
+// million others. Set the other blocks to 0 first; they all write to stdout.
+if (0)
+{
+	get_bhl_lite_titles(dirname(dirname(__FILE__)) . '/couchdb-items-titles.json');
 }
 
 ?>

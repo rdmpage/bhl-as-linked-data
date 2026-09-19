@@ -11,6 +11,46 @@ One goal, for example, is to be be able to generate a IIIF manifest for a BHL it
 
 Wherever possible we use [schema.org](https://schema.org) with the **https** protocol (see [Is it http://schema.org or https://schema.org?](https://docs.nde.nl/blog/2026/03/09/schema.org/)).
 
+"Wherever possible" is doing real work in that sentence. Canvas and image dimensions are the
+standing exception: they use `exif:width` and `exif:height`, not `schema:width` and
+`schema:height`, and that is deliberate rather than an oversight.
+
+Three reasons, in descending order of how much they matter.
+
+The IIIF Presentation 3 context defines `width` and `height` as exif, typed `xsd:integer`:
+
+```
+width   ->  http://www.w3.org/2003/12/exif/ns#width    xsd:integer
+height  ->  http://www.w3.org/2003/12/exif/ns#height   xsd:integer
+```
+
+A manifest declares that context, so its `"width": 2900` *means* `exif:width` to anything that
+expands it. Storing `schema:width` in the triples while emitting `"width"` in the manifest
+would make the manifest say one thing and mean another — the same discrepancy we had with
+`format`, which was `dcterms:format` in the triples against `dc:format` in the declared
+context, and which is invisible in the JSON because the key is spelled the same either way.
+
+`schema:width` does not take a plain number. Its range is `Distance` or `QuantitativeValue`,
+so the honest schema.org form is
+
+```
+<image> schema:width [ a schema:QuantitativeValue ; schema:value 2900 ; schema:unitCode "E37" ] .
+```
+
+which is about four triples per dimension. Against 2,055,006 canvases that is roughly 16
+million extra triples for two numbers, in a graph where the page-level pass is already large
+enough to be the binding constraint.
+
+A canvas is not a `MediaObject`. `schema:width` has a domain of `MediaObject`, `Product`,
+`VisualArtwork` and friends; a IIIF Canvas is none of them. It is a notional page that images
+are painted onto, so `schema:width` would be wrong on domain as well as on range, where
+`exif:width` is exactly what IIIF defines for the purpose.
+
+The general point, which applies beyond this case: what the triples are stored in and what the
+manifest is serialised as do not have to be the same vocabulary. A `CONSTRUCT` can map one to
+the other, and `sparql2iiif.php` already translates between the two in places. So if
+schema.org ever matters more for the data than exif does, the manifest can still be correct —
+it costs a translation in the query and the `QuantitativeValue` nodes in the store.
 
 ## Creators
 
