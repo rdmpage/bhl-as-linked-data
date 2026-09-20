@@ -238,6 +238,7 @@ function item_manifest_query($item)
 	  ?ocr_ap <http://www.w3.org/ns/activitystreams#items> ?ocr_anno .
 	  ?ocr_anno <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/oa#Annotation> .
 	  ?ocr_anno <https://www.w3.org/ns/oa#motivatedBy> <http://iiif.io/api/presentation/3#supplementing> .
+	  ?ocr_anno <http://iiif.io/api/extension/text-granularity#textGranularity> <http://iiif.io/api/extension/text-granularity#page> .
 	  ?ocr_anno <https://www.w3.org/ns/oa#hasBody> ?ocr .
 	  ?ocr <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/Text> .
 	  ?ocr <http://purl.org/dc/elements/1.1/format> "text/plain" .
@@ -557,6 +558,30 @@ function manifest_context()
 		"@type"      => "@vocab",
 		"@container" => "@set"
 	);
+		
+	// text granularity extension
+	//
+	// @vocab does not invent short names: it compacts an IRI value only if some term in the
+	// context is defined as exactly that IRI. So the values need terms of their own, the same
+	// way painting and supplementing do for motivation -- without them textGranularity comes
+	// out as "http://iiif.io/api/extension/text-granularity#page" rather than "page".
+	//
+	// The official extension context declares these inside a scoped @context on the term
+	// itself, which is a JSON-LD 1.1 feature and so unavailable here; declaring them at the
+	// top level compacts identically, and a consumer reading the emitted "page" against the
+	// official context expands it back to the same IRI.
+	$context->textGranularity = (object) array(
+		"@id"        => "http://iiif.io/api/extension/text-granularity#textGranularity",
+		"@type"      => "@vocab"
+	);
+
+	$context->page      = "http://iiif.io/api/extension/text-granularity#page";
+	$context->block     = "http://iiif.io/api/extension/text-granularity#block";
+	$context->paragraph = "http://iiif.io/api/extension/text-granularity#paragraph";
+	$context->line      = "http://iiif.io/api/extension/text-granularity#line";
+	$context->word      = "http://iiif.io/api/extension/text-granularity#word";
+	$context->glyph     = "http://iiif.io/api/extension/text-granularity#glyph";
+	
 	$context->paged = "http://iiif.io/api/presentation/3#pagedHint";
 	$context->{'non-paged'} = "http://iiif.io/api/presentation/3#nonPagedHint";
 
@@ -574,7 +599,7 @@ function manifest_context()
 	$context->format = "http://purl.org/dc/elements/1.1/format";
 	$context->Image = "http://purl.org/dc/dcmitype/StillImage";
 	$context->Text = "http://purl.org/dc/dcmitype/Text";
-	
+		
 	// make @id and @type JSON-friendly
 	$context->id = "@id";
 	$context->type = "@type";
@@ -667,12 +692,16 @@ function finish_manifest($manifest)
 {
 	fix_language_maps($manifest);
 
-	// Declare the IIIF Presentation 3 context.
+	// Declare the contexts: the text granularity extension, then IIIF Presentation 3.
+	//
+	// Presentation 3 goes LAST. Later contexts win where they conflict, and the extension
+	// guidance is that the Presentation API context has the final say, so reversing these
+	// would let the extension redefine core IIIF terms.
 	//
 	// Written straight into the output rather than handed to the processor: ml/json-ld 1.2.1
-	// is a JSON-LD 1.0 implementation and the official context is @version 1.1 -- scoped
+	// is a JSON-LD 1.0 implementation and both official contexts are @version 1.1 -- scoped
 	// contexts, an ["@language", "@set"] container on label, @none -- so compacting against
-	// that file throws outright. Nothing fetches this URL: it is only a string in the JSON,
+	// either throws outright. Nothing fetches these URLs: they are only strings in the JSON,
 	// and the $context above is what actually did the compaction.
 	//
 	// The two agree on the IRI of every term this manifest emits. They differ only in the
@@ -685,7 +714,7 @@ function finish_manifest($manifest)
 	// array_merge, rather than assigning the property, so @context comes out first as IIIF
 	// manifests conventionally have it.
 	$manifest = (object)array_merge(
-		array('@context' => 'http://iiif.io/api/presentation/3/context.json'),
+		array('@context' => ['http://iiif.io/api/extension/text-granularity/context.json', 'http://iiif.io/api/presentation/3/context.json']),
 		(array)$manifest
 	);
 
@@ -736,7 +765,8 @@ function part_manifest($part)
 
 //$manifest = item_manifest('https://www.biodiversitylibrary.org/item/256454');
 //$manifest = item_manifest('https://www.biodiversitylibrary.org/item/251163');
-$manifest = item_manifest('https://www.biodiversitylibrary.org/item/281446');
+//$manifest = item_manifest('https://www.biodiversitylibrary.org/item/281446');
+$manifest = item_manifest('https://www.biodiversitylibrary.org/item/349846');
 //$manifest = part_manifest('https://www.biodiversitylibrary.org/part/125034');
 
 if ($manifest === null)
