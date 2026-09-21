@@ -11,6 +11,9 @@ require_once (dirname(__FILE__) . '/sqlite.php');
 // its own driver runs only when that file is the script being executed.
 require_once (dirname(dirname(__FILE__)) . '/iiif/canvas2rdf.php');
 
+// parse item volume details
+require_once (dirname(__FILE__) . '/parse-volume.php');
+
 //----------------------------------------------------------------------------------------
 // take ISO date and convert to typed date
 function create_date(&$triples, $date_string, $subject_uri, $predicate_uri = 'https://schema.org/datePublished')
@@ -69,6 +72,76 @@ function create_encoding_triples(&$triples, $work, $encoding, $mime_type)
 }
 
 //----------------------------------------------------------------------------------------
+// Map a BHL language code to a BCP 47 language tag, which is what schema:inLanguage wants.
+//
+// BHL stores MARC / ISO 639-2/B codes, uppercase and always three letters: ENG, FRE, GER.
+// Those are not BCP 47. Where a language has an ISO 639-1 two-letter code, that code IS the
+// subtag and the three-letter form is simply absent from the IANA registry -- "eng" and
+// "fre" are not merely discouraged, they are invalid. 46 of the 54 codes BHL uses map this
+// way, covering 188,504 of its 188,976 coded titles.
+//
+// The rule is the shortest available code, not always two letters. Six of BHL's codes have
+// no ISO 639-1 equivalent and are already valid as they stand: und, mul, frm, ota, grc, gmh.
+//
+// Read from vocabularies/ISO-639-2_utf-8.txt, the Library of Congress table -- LoC is the
+// registration authority for ISO 639-2 -- rather than copied into a constant here, so there
+// is one copy to keep current. Pipe-delimited:
+//
+//   alpha3-bibliographic|alpha3-terminologic|alpha2|English name|French name
+//
+// Returns null for a code it cannot place, so the caller omits the property rather than
+// asserting a tag that is not a tag.
+function bcp47_language($code)
+{
+	static $map = null;
+
+	if ($map === null)
+	{
+		$map = array();
+
+		$path = dirname(dirname(__FILE__)) . '/vocabularies/ISO-639-2_utf-8.txt';
+
+		if (!file_exists($path))
+		{
+			fwrite(STDERR, "Can't find $path, language codes will be omitted\n");
+		}
+		else
+		{
+			foreach (explode("\n", file_get_contents($path)) as $line)
+			{
+				// the file carries a UTF-8 BOM, which would otherwise stick to the first code
+				$line = trim(str_replace("\xEF\xBB\xBF", '', $line));
+
+				if ($line === '')
+				{
+					continue;
+				}
+
+				$parts = explode('|', $line);
+
+				if (count($parts) < 3)
+				{
+					continue;
+				}
+
+				// the alpha2 column where there is one, otherwise the three-letter code stands
+				$map[$parts[0]] = ($parts[2] !== '') ? $parts[2] : $parts[0];
+			}
+		}
+
+		// Withdrawn from ISO 639-2 in 2008 and so absent from the table above; they need
+		// saying explicitly. BHL is inconsistent with itself here -- it also uses hrv for
+		// Croatian, so the same language appears under two codes.
+		$map['scr'] = 'hr';  // Croatian
+		$map['scc'] = 'sr';  // Serbian
+	}
+
+	$code = strtolower(trim($code));
+
+	return isset($map[$code]) ? $map[$code] : null;
+}
+
+//----------------------------------------------------------------------------------------
 // Get list of items for a title
 function get_items_for_title($TitleID)
 {
@@ -109,6 +182,9 @@ function get_title($TitleID)
 	$title = new stdclass;
 	$title->items = [];
 	$title->identifier = [];
+	$title->subject = [];
+	$title->creator = [];
+	$title->contributor = [];
 	
 	foreach ($data as $row)
 	{
@@ -118,6 +194,24 @@ function get_title($TitleID)
 		if (isset($row->ShortTitle) && strcmp($row->ShortTitle, $row->FullTitle) !== 0)
 		{
 			$title->alternateName = $row->ShortTitle;
+		}
+
+		// BHL's MARC code mapped to a BCP 47 tag, see bcp47_language(). Left unset when the
+		// code cannot be placed -- scr and scc were withdrawn from ISO 639-2 and are handled
+		// there, but anything else unrecognised is better omitted than asserted wrongly.
+		if (isset($row->LanguageCode))
+		{
+			$language = bcp47_language($row->LanguageCode);
+
+			if ($language !== null)
+			{
+				$title->inLanguage = $language;
+			}
+			else
+			{
+				fwrite(STDERR, "Unmapped LanguageCode \"" . $row->LanguageCode
+					. "\" on title " . $TitleID . "\n");
+			}
 		}
 			
 		if (isset($row->IdentifierName))
@@ -162,9 +256,18 @@ function get_title($TitleID)
 		}
 	}
 	
+	// Subjects
+	$sql = 'SELECT Subject FROM subject WHERE TitleID=' . $TitleID;	
+
+	$data = db_get($sql);
 	
+	foreach ($data as $row)
+	{
+		$title->subject[] = $row->Subject;
+	}
+		
 	// list of items
-	//$title->items = get_items_for_title($TitleID);	
+	$title->items = get_items_for_title($TitleID);	
 	
 	// stderr, not stdout: the triples go to stdout, so print_r() there lands in the middle
 	// of the .nt file and the whole thing stops parsing. Same reason shared.php sends
@@ -196,6 +299,15 @@ function get_title($TitleID)
 		$s = $title->id;
 		$p = 'https://schema.org/alternateName';
 		$o = '"' . nice_literal($title->alternateName) . '"';		
+		$triples[] = [$s, $p, $o];		
+	}
+	
+	// language, as a BCP 47 tag
+	if (isset($title->inLanguage))
+	{
+		$s = $title->id;
+		$p = 'https://schema.org/inLanguage';
+		$o = '"' . nice_literal($title->inLanguage) . '"';		
 		$triples[] = [$s, $p, $o];		
 	}
 	
@@ -255,8 +367,7 @@ function get_title($TitleID)
 				break;
 		}
 	}
-	
-	
+		
 	// DOI
 	if (isset($title->doi))
 	{
@@ -269,7 +380,34 @@ function get_title($TitleID)
 		}
 	}
 	
+	// Subjects
+	foreach ($title->subject as $subject)
+	{
+		$s = $title->id;
+		$p = 'https://schema.org/keywords';
+		$o = '"' . nice_literal($subject) . '"';		
+		$triples[] = [$s, $p, $o];			
+	}
 	
+	// Creator/contribution
+	// link to creator id
+	foreach ($title->creator as $creator)
+	{
+		$s = $title->id;
+		$p = 'https://schema.org/creator';
+		$o = $config['bhl'] . '/creator/' . $creator;
+		$triples[] = [$s, $p, $o];			
+	}
+
+	foreach ($title->contributor as $contributor)
+	{
+		$s = $title->id;
+		$p = 'https://schema.org/contributor';
+		$o = $config['bhl'] . '/creator/' . $contributor;
+		$triples[] = [$s, $p, $o];			
+	}
+		
+	// Items as a DataFeed
 	foreach ($title->items as $ItemID => $position)
 	{
 		$list_item_id = $title->id . '/item/' . str_pad($position, 4, '0', STR_PAD_LEFT);
@@ -398,6 +536,92 @@ function get_item ($ItemID )
 	$p = 'https://schema.org/name';
 	$o = '"' . nice_literal($item->name) . '"';		
 	$triples[] = [$s, $p, $o];	
+	
+	// Post processing--------------------------------------------------------------------
+	// extract date and volume information from item name
+	// we do this to improve ability to find articles based on OpenURL-style queries
+	$volume_info = parse_volume($item->name);
+
+	// Whether the volume string gave us a date. Tracked because item.Year has to stand in
+	// when it did not -- see the fallback below.
+	$have_dates = false;
+	
+	// print_r($volume_info);
+	//exit();	
+	
+	if ($volume_info->parsed)
+	{
+		// and one or more volume numbers, and set item type to include PublicationVolume
+		if (isset($volume_info->volume))
+		{
+			// PublicationVolume
+			$s = $item->id;
+			$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+			$o = 'https://schema.org/PublicationVolume';		
+			$triples[] = [$s, $p, $o];	
+			
+			// volumes
+			foreach ($volume_info->volume as $volume)
+			{			
+				$s = $item->id;
+				$p = 'https://schema.org/volumeNumber';
+				$o = '"' . nice_literal($volume) . '"';
+				$triples[] = [$s, $p, $o];	
+			}			
+		}
+		
+		// date range
+		if (isset($volume_info->issued))
+		{
+			if (count ($volume_info->issued->{'date-parts'}) == 1)
+			{
+				$have_dates = true;
+
+				create_date($triples, 
+					$volume_info->issued->{'date-parts'}[0][0], 
+					$item->id,
+					'https://schema.org/startDate');
+
+				create_date($triples, 
+					$volume_info->issued->{'date-parts'}[0][0], 
+					$item->id,
+					'https://schema.org/endDate');
+			}
+			if (count ($volume_info->issued->{'date-parts'}) == 2)
+			{
+				$have_dates = true;
+
+				create_date($triples, 
+					$volume_info->issued->{'date-parts'}[0][0], 
+					$item->id,
+					'https://schema.org/startDate');
+
+				create_date($triples, 
+					$volume_info->issued->{'date-parts'}[1][0], 
+					$item->id,
+					'https://schema.org/endDate');
+			}
+		}
+	}	
+	
+	// default date based on BHL dump
+	if (isset($item->year) && preg_match('/^[0-9]{4}$/', $item->year))
+	{
+		create_date($triples, $item->year, $item->id, 'https://schema.org/datePublished');
+
+		// Where the volume string yielded no date, item.Year stands in as a degenerate
+		// range. Without this, 39% of items carry datePublished but no startDate or
+		// endDate -- VolumeInfo is empty for many of them, and others name a volume with
+		// no year in it, "v. 5 pt. 1" -- and an OpenURL lookup by year, which is the whole
+		// reason for the range, silently misses two items in five. A point is a range whose
+		// ends coincide, so saying so costs one triple and keeps every item answerable by
+		// the same query.
+		if (!$have_dates)
+		{
+			create_date($triples, $item->year, $item->id, 'https://schema.org/startDate');
+			create_date($triples, $item->year, $item->id, 'https://schema.org/endDate');
+		}
+	}
 	
 	// Internet Archive
 	$s = $item->id;
@@ -1100,11 +1324,11 @@ function get_bhl_lite($path)
 	fwrite(STDERR, "done, $n items\n");
 }
 
-if (1)
+if (0)
 {
 	$TitleID = 57881;
 	$TitleID = 149317;
-	//$TitleID = 40366;
+	$TitleID = 40366;
 	
 	$title = get_title($TitleID);
 	
@@ -1140,15 +1364,18 @@ if (0)
 	
 }	
 
-if (0)
+if (1)
 {
 	$ItemID = 223011;
 	
-	$ItemID = 19421; // Magazine of natural history and journal of zoology, botany, mineralog v. 1
+	$ItemID = 16623;
+	
+	//$ItemID = 19421; // Magazine of natural history and journal of zoology, botany, mineralog v. 1
 	get_item($ItemID);
 	
 	echo "\n\n";
 	
+	/*
 	get_item_pages($ItemID);
 	
 	echo "\n\n";
@@ -1160,6 +1387,7 @@ if (0)
 		get_part($PartID);
 		echo "\n\n";
 	}
+	*/
 	
 	
 }

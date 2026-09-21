@@ -4,13 +4,20 @@ Experiments to render BHL as linked data.
 
 Note that the goal is not to simply map BHL data dump tables onto arbitrary RDF, but model BHL data such that we could, in principle, build a BHL web interface using SPARQL queries. Leaving aside the wisdom of trying to run BHL on a triple store, setting that as a goal helps clarify the modelling. 
 
-One goal, for example, is to be be able to generate a IIIF manifest for a BHL item from the RDF. This enables us to visually test whether our model works (e.g., can we support page order, the relationship between parts and items). And because a IIIF viewer natuively speaks RDF (the manifest file a viewer needs is JSON-LD), it also means that we think about images and text as annotations, along with more obvious annotations such as taxonomic names, etc.
+One goal, for example, is to be be able to generate a IIIF manifest for a BHL item from the RDF. This enables us to visually test whether our model works (e.g., can we support page order, the relationship between parts and items, etc?). Because a IIIF viewer natively speaks RDF (the manifest file for a viewer is a JSON-LD document), it also means that we start to think about images and text as annotations, along with more obvious annotations such as taxonomic names, geographic places, etc. Hence, the idea of supporting multiple sources of OCR, for example, becomes more natural.
+
+Another goal is to keep the RDF as simple as possible, hence everything is modelled using terms from schema.org. This minimises cognitive load (you only have to remember the term, not which vocabulary it came from), and it aligns with the growing use of schema.org, for example by the publishing industry to model journal articles, and by the [Bioschemas](https://bioschemas.org) project to model biological databases, taxa and taxonomic names, etc.
+
+Much of the reast of this README has been written by Claude Code, especially some of the more technical details around choice of vocablaries, and ensuring the IIIF manifest renders correctly.
 
 
 ## Vocabulary
 
+### schema.org
+
 Wherever possible we use [schema.org](https://schema.org) with the **https** protocol (see [Is it http://schema.org or https://schema.org?](https://docs.nde.nl/blog/2026/03/09/schema.org/)).
 
+#### IIIF considerations (Claude)
 "Wherever possible" is doing real work in that sentence. Canvas and image dimensions are the
 standing exception: they use `exif:width` and `exif:height`, not `schema:width` and
 `schema:height`, and that is deliberate rather than an oversight.
@@ -51,6 +58,18 @@ manifest is serialised as do not have to be the same vocabulary. A `CONSTRUCT` c
 the other, and `sparql2iiif.php` already translates between the two in places. So if
 schema.org ever matters more for the data than exif does, the manifest can still be correct —
 it costs a translation in the query and the `QuantitativeValue` nodes in the store.
+
+### geo URIs
+
+See RFC 5870: A Uniform Resource Identifier for Geographic Locations ('geo' URI) https://doi.org/10.17487/RFC5870
+
+## Languages
+
+For most strings we don’t have explicit language information, so we just store the literal strings. An obvious refinement would be to detect the language of the string, and also handle cases where a string (such as a article title) combines two languages together.
+
+Note that BHL does have language information for the content of some titles (`title.LanguageCode`), and uses values from [MARC / ISO 639-2/B](https://www.loc.gov/standards/iso639-2/php/code_list.php) (according to Claude). For https://schema.org/inLanguage we follow IETF BCP 47 [RFC 5646: BCP 47: Tags for Identifying Languages](https://doi.org/10.17487/RFC5646), so BHL language codes need to be converted. Note that there is only one value for `title.LanguageCode`, so multilingual titles are not handled correctly. 
+
+BHL also has a column `LanguageName` for parts, but this seems inaccurate, for example https://www.biodiversitylibrary.org/part/8000 “Preliminary Note on a new genus of Earthworms” is an English-language article in a German-language journal (Zoologischer Anzeiger), and `part.LanguageName` = German. It looks like parts simply inherit the language of the title they belong too.
 
 ## Creators
 
