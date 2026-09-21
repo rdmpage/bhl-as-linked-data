@@ -15,95 +15,6 @@ require_once (dirname(dirname(__FILE__)) . '/iiif/canvas2rdf.php');
 require_once (dirname(__FILE__) . '/parse-volume.php');
 
 //----------------------------------------------------------------------------------------
-// take ISO date and convert to typed date
-function create_date(&$triples, $date_string, $subject_uri, $predicate_uri = 'https://schema.org/datePublished')
-{
-	// Only a single calendar date, as YYYY, YYYY-MM or YYYY-MM-DD. Anything else is bad
-	// input and gets no triple at all.
-	//
-	// This used to split on "-" and take the second field as a month whatever it was, so a
-	// year range -- which has the same shape once split -- became a month of four digits:
-	//
-	//   "1893-1908"  ->  "1893-001908"^^xsd:gYearMonth
-	//
-	// That is outside gYearMonth's lexical space, so it is an ill-typed literal: it does not
-	// error, it silently fails every comparison, and a row simply vanishes from a range
-	// filter or an aggregate. 1,584 of BHL's 404,792 dated parts carry a year range and
-	// would be mangled this way. Emitting nothing is worse data but honest, and a caller
-	// that wants to represent a span should use startDate and endDate as get_item() does.
-	//
-	// Month and day may be given with one or two digits and are normalised to two; the year
-	// must be four. Returns true when a triple was added.
-	if (!preg_match('/^([0-9]{4})(?:-([0-9]{1,2})(?:-([0-9]{1,2}))?)?$/', trim($date_string), $m))
-	{
-		return false;
-	}
-
-	$year = $m[1];
-
-	$month = isset($m[2]) && $m[2] !== '' ? str_pad($m[2], 2, '0', STR_PAD_LEFT) : null;
-	$day   = isset($m[3]) && $m[3] !== '' ? str_pad($m[3], 2, '0', STR_PAD_LEFT) : null;
-
-	// a month of 00 or 13, or a day of 00 or 32, is not a date however it is spelt
-	if ($month !== null && ((int)$month < 1 || (int)$month > 12))
-	{
-		return false;
-	}
-
-	if ($day !== null && ((int)$day < 1 || (int)$day > 31))
-	{
-		return false;
-	}
-
-	if ($day !== null)
-	{
-		$date     = "$year-$month-$day";
-		$datetype = 'date';
-	}
-	else if ($month !== null)
-	{
-		$date     = "$year-$month";
-		$datetype = 'gYearMonth';
-	}
-	else
-	{
-		$date     = "$year";
-		$datetype = 'gYear';
-	}
-
-	$s = $subject_uri;
-	$p = $predicate_uri;
-	$o = '"' . $date . '"^^<http://www.w3.org/2001/XMLSchema#' . $datetype . '>';
-	$triples[] = [$s, $p, $o];
-
-	return true;
-}
-
-//----------------------------------------------------------------------------------------
-function create_encoding_triples(&$triples, $work, $encoding, $mime_type)
-{
-	$s = $work;
-	$p = 'https://schema.org/encoding';
-	$o = $encoding;		
-	$triples[] = [$s, $p, $o];	
-	
-	$s = $encoding;
-	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
-	$o = 'https://schema.org/MediaObject';		
-	$triples[] = [$s, $p, $o];	
-
-	$s = $encoding;
-	$p = 'https://schema.org/contentUrl';	
-	$o = $encoding;		
-	$triples[] = [$s, $p, $o];	
-
-	$s = $encoding;
-	$p = 'https://schema.org/encodingFormat';	
-	$o = '"' . nice_literal($mime_type) . '"';		
-	$triples[] = [$s, $p, $o];	
-}
-
-//----------------------------------------------------------------------------------------
 // Map a BHL language code to a BCP 47 language tag, which is what schema:inLanguage wants.
 //
 // BHL stores MARC / ISO 639-2/B codes, uppercase and always three letters: ENG, FRE, GER.
@@ -1396,7 +1307,7 @@ if (0)
 	
 }	
 
-if (1)
+if (0)
 {
 	$ItemID = 223011;
 	
@@ -1429,7 +1340,7 @@ if (1)
 //   php sql/sql2rdf.php > bhl-lite.nt 2> bhl-lite.log
 //
 // Set the block above to 0 first; both write to stdout.
-if (0)
+if (1)
 {
 	get_bhl_lite(dirname(dirname(__FILE__)) . '/couchdb-items-titles.json');
 }
