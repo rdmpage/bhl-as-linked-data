@@ -9,3 +9,13 @@
 canvas.sqlite
 canvas.sqlite-shm
 canvas.sqlite-wal
+
+# OCR text cache: one .txt per page, ~40 MB for the two demo titles alone and
+# refetchable from S3. Keeping it makes annotate_titles.php a 2 second job
+# instead of a 26 minute one, but it is a cache, not source.
+/annotations/textcache/
+
+# Generated triples and run logs. Regenerate with
+#   php annotations/annotate_titles.php 149841 144642 > annotations/geo-demo.nt
+/annotations/*.nt
+/annotations/*.log

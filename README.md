@@ -18,9 +18,7 @@ Much of the reast of this README has been written by Claude Code, especially som
 Wherever possible we use [schema.org](https://schema.org) with the **https** protocol (see [Is it http://schema.org or https://schema.org?](https://docs.nde.nl/blog/2026/03/09/schema.org/)).
 
 #### IIIF considerations (Claude)
-"Wherever possible" is doing real work in that sentence. Canvas and image dimensions are the
-standing exception: they use `exif:width` and `exif:height`, not `schema:width` and
-`schema:height`, and that is deliberate rather than an oversight.
+"Wherever possible" is doing real work in that sentence. Canvas and image dimensions are the standing exception: they use `exif:width` and `exif:height`, not `schema:width` and `schema:height`, and that is deliberate rather than an oversight.
 
 Three reasons, in descending order of how much they matter.
 
@@ -31,33 +29,19 @@ width   ->  http://www.w3.org/2003/12/exif/ns#width    xsd:integer
 height  ->  http://www.w3.org/2003/12/exif/ns#height   xsd:integer
 ```
 
-A manifest declares that context, so its `"width": 2900` *means* `exif:width` to anything that
-expands it. Storing `schema:width` in the triples while emitting `"width"` in the manifest
-would make the manifest say one thing and mean another — the same discrepancy we had with
-`format`, which was `dcterms:format` in the triples against `dc:format` in the declared
-context, and which is invisible in the JSON because the key is spelled the same either way.
+A manifest declares that context, so its `"width": 2900` *means* `exif:width` to anything that expands it. Storing `schema:width` in the triples while emitting `"width"` in the manifest would make the manifest say one thing and mean another — the same discrepancy we had with `format`, which was `dcterms:format` in the triples against `dc:format` in the declared context, and which is invisible in the JSON because the key is spelled the same either way.
 
-`schema:width` does not take a plain number. Its range is `Distance` or `QuantitativeValue`,
-so the honest schema.org form is
+`schema:width` does not take a plain number. Its range is `Distance` or `QuantitativeValue`, so the honest schema.org form is
 
 ```
 <image> schema:width [ a schema:QuantitativeValue ; schema:value 2900 ; schema:unitCode "E37" ] .
 ```
 
-which is about four triples per dimension. Against 2,055,006 canvases that is roughly 16
-million extra triples for two numbers, in a graph where the page-level pass is already large
-enough to be the binding constraint.
+which is about four triples per dimension. Against 2,055,006 canvases that is roughly 16 million extra triples for two numbers, in a graph where the page-level pass is already large enough to be the binding constraint.
 
-A canvas is not a `MediaObject`. `schema:width` has a domain of `MediaObject`, `Product`,
-`VisualArtwork` and friends; a IIIF Canvas is none of them. It is a notional page that images
-are painted onto, so `schema:width` would be wrong on domain as well as on range, where
-`exif:width` is exactly what IIIF defines for the purpose.
+A canvas is not a `MediaObject`. `schema:width` has a domain of `MediaObject`, `Product`, `VisualArtwork` and friends; a IIIF Canvas is none of them. It is a notional page that images are painted onto, so `schema:width` would be wrong on domain as well as on range, where `exif:width` is exactly what IIIF defines for the purpose.
 
-The general point, which applies beyond this case: what the triples are stored in and what the
-manifest is serialised as do not have to be the same vocabulary. A `CONSTRUCT` can map one to
-the other, and `sparql2iiif.php` already translates between the two in places. So if
-schema.org ever matters more for the data than exif does, the manifest can still be correct —
-it costs a translation in the query and the `QuantitativeValue` nodes in the store.
+The general point, which applies beyond this case: what the triples are stored in and what the manifest is serialised as do not have to be the same vocabulary. A `CONSTRUCT` can map one to the other, and `sparql2iiif.php` already translates between the two in places. So if schema.org ever matters more for the data than exif does, the manifest can still be correct — it costs a translation in the query and the `QuantitativeValue` nodes in the store.
 
 ### geo URIs
 
@@ -73,71 +57,32 @@ BHL also has a column `LanguageName` for parts, but this seems inaccurate, for e
 
 ## Creators
 
-BHL has no master creator table. Credits live in two places: `creator` holds title-level
-credits and `partcreator` holds article-level ones, and they overlap by only 10,149 of the
-241,475 people and organisations involved. Either table on its own misses most of them —
-`creator` knows 79,892, `partcreator` 171,732 — so anything creator-shaped has to read both.
-No CreatorID carries more than one spelling of its name, so the name is a clean function of
-the id and the two tables cannot disagree about it.
+BHL has no master creator table. Credits live in two places: `creator` holds title-level credits and `partcreator` holds article-level ones, and they overlap by only 10,149 of the 241,475 people and organisations involved. Either table on its own misses most of them — `creator` knows 79,892, `partcreator` 171,732 — so anything creator-shaped has to read both. No CreatorID carries more than one spelling of its name, so the name is a clean function of the id and the two tables cannot disagree about it.
 
-`sql/creator_names.php` parses a BHL creator heading; `sql/export_creators.php` reads the
-database configured in `sql/sqlite.php` and writes one record per CreatorID:
+`sql/creator_names.php` parses a BHL creator heading; `sql/export_creators.php` reads the database configured in `sql/sqlite.php` and writes one record per CreatorID:
 
 ```sh
 php sql/export_creators.php > creators.json          # a JSON object keyed by CreatorID
 php sql/export_creators.php --ndjson > creators.ndjson   # one record per line
 ```
 
-The export is written as a stream rather than assembled in memory, because the full run is
-~241k records.
+The export is written as a stream rather than assembled in memory, because the full run is ~241k records.
 
-A heading is not just a name. It arrives with life dates, a qualifier on those dates, an
-expansion of the initials and an honorific, all run together — `Flannery, Tim F. (Tim
-Fridtjof), 1956-` — and the parser pulls those apart into components named for the
-schema.org properties they map onto, so the RDF needs no translation layer. `familyName`,
-`givenName`, `additionalName`, `honorificPrefix`, `honorificSuffix`, `birthDate` and
-`deathDate` all carry straight through to `schema:`. `initials`, `alternatives` and the
-floruit dates have no schema.org equivalent and keep descriptive names.
+A heading is not just a name. It arrives with life dates, a qualifier on those dates, an expansion of the initials and an honorific, all run together — `Flannery, Tim F. (Tim Fridtjof), 1956-` — and the parser pulls those apart into components named for the schema.org properties they map onto, so the RDF needs no translation layer. `familyName`, `givenName`, `additionalName`, `honorificPrefix`, `honorificSuffix`, `birthDate` and `deathDate` all carry straight through to `schema:`. `initials`, `alternatives` and the floruit dates have no schema.org equivalent and keep descriptive names.
 
-`name` is the display form and `disambiguatingDescription` keeps the heading exactly as BHL
-holds it, cleaned only of invisible characters and normalised to NFC. That is deliberate:
-the dates and honorifics that tell two people of the same name apart survive there, so
-nothing the catalogue recorded is lost by preferring a tidy display name.
+`name` is the display form and `disambiguatingDescription` keeps the heading exactly as BHL holds it, cleaned only of invisible characters and normalised to NFC. That is deliberate: the dates and honorifics that tell two people of the same name apart survive there, so nothing the catalogue recorded is lost by preferring a tidy display name.
 
-`additionalName` is split off the given name last of all. The display name, the initials and
-every alternative spelling are built from the whole given name, so splitting earlier would
-drop the middle name out of all of them — `initials` for "Lawrence Morris" is still `L. M.`,
-not `L.`, and `givenName` + `additionalName` round-trips to the original. 47% of creators
-have one.
+`additionalName` is split off the given name last of all. The display name, the initials and every alternative spelling are built from the whole given name, so splitting earlier would drop the middle name out of all of them — `initials` for "Lawrence Morris" is still `L. M.`, not `L.`, and `givenName` + `additionalName` round-trips to the original. 47% of creators have one.
 
 ### How far to trust the catalogue
 
-`CreatorType` is two MARC facets welded together with `" - "`: an entry type (`Main`, MARC
-1XX, or `Added`, 7XX) and a name type (personal, corporate, meeting). It is worth knowing
-how reliable that is before building on it.
+`CreatorType` is two MARC facets welded together with `" - "`: an entry type (`Main`, MARC 1XX, or `Added`, 7XX) and a name type (personal, corporate, meeting). It is worth knowing how reliable that is before building on it.
 
-Mostly it holds up. `creator_infer_kind()` guesses the kind from the shape of the name alone,
-entirely independently of the catalogue, and agrees with the stated type on 95.47% of the
-380,555 typed rows. Sampling the 4.53% that disagree shows it cuts both ways rather than
-indicting MARC: the largest bucket is corporate headings the heuristic misreads as people
-("Cadell & Davies"), and the next is mononyms it cannot place ("Gorachaud."). Disagreement is
-a flag, not a verdict.
+Mostly it holds up. `creator_infer_kind()` guesses the kind from the shape of the name alone, entirely independently of the catalogue, and agrees with the stated type on 95.47% of the 380,555 typed rows. Sampling the 4.53% that disagree shows it cuts both ways rather than indicting MARC: the largest bucket is corporate headings the heuristic misreads as people ("Cadell & Davies"), and the next is mononyms it cannot place ("Gorachaud."). Disagreement is a flag, not a verdict.
 
-There are outright errors, but few: 43 creators typed `Personal` whose names are plainly
-organisations ("British Museum (Natural History)", "Zoological Society of London.") and 10
-that are plainly events ("United States Exploring Expedition 1838-1842"). That is 0.07% of
-79,892, and cheap to fix by hand.
+There are outright errors, but few: 43 creators typed `Personal` whose names are plainly organisations ("British Museum (Natural History)", "Zoological Society of London.") and 10 that are plainly events ("United States Exploring Expedition 1838-1842"). That is 0.07% of 79,892, and cheap to fix by hand.
 
-The problems that actually matter are structural. 223 creators are typed inconsistently
-across their own rows, with no row marked authoritative — `creator_kind_from_types()` takes
-the majority and, on a tie, the first kind seen. 10,007 are a main entry on one title and an
-added entry on another, so "is this person an author or a contributor" has no answer until
-you say *on which title*; entry is a property of the credit, not of the creator, and the
-export reports it per CreatorType with counts rather than flattening it. And 554,656 credits
-— 59% of the total — come from `partcreator`, which has no `CreatorType` column at all, so
-for most credits MARC contributes nothing. Where BHL said nothing the name shape decides the
-kind, and `entry`, `role` and `rdf_property` are left `null` rather than defaulted, so an
-untyped credit never silently becomes a `creator`.
+The problems that actually matter are structural. 223 creators are typed inconsistently across their own rows, with no row marked authoritative — `creator_kind_from_types()` takes the majority and, on a tie, the first kind seen. 10,007 are a main entry on one title and an added entry on another, so "is this person an author or a contributor" has no answer until you say *on which title*; entry is a property of the credit, not of the creator, and the export reports it per CreatorType with counts rather than flattening it. And 554,656 credits — 59% of the total — come from `partcreator`, which has no `CreatorType` column at all, so for most credits MARC contributes nothing. Where BHL said nothing the name shape decides the kind, and `entry`, `role` and `rdf_property` are left `null` rather than defaulted, so an untyped credit never silently becomes a `creator`.
 
 ### Example
 
@@ -181,17 +126,11 @@ untyped credit never silently becomes a `creator`.
 }
 ```
 
-`identifiers` is grouped by scheme because a creator can carry more than one value for the
-same one, and it is the obvious starting point for `owl:sameAs`. `alternatives` are for
-matching and for `skos:altLabel` — both orderings and both levels of abbreviation, since
-"N. C. Kindberg" and "Nils Conrad Kindberg" are the same person written two ways and both
-need to be findable.
+`identifiers` is grouped by scheme because a creator can carry more than one value for the same one, and it is the obvious starting point for `owl:sameAs`. `alternatives` are for matching and for `skos:altLabel` — both orderings and both levels of abbreviation, since "N. C. Kindberg" and "Nils Conrad Kindberg" are the same person written two ways and both need to be findable.
 
 ### Linking works to creators
 
-The work links are deliberately *not* in the JSON. They are edges rather than properties of
-the creator, there are 933,515 of them against 241,475 creators, and they fall out of two
-queries:
+The work links are deliberately *not* in the JSON. They are edges rather than properties of the creator, there are 933,515 of them against 241,475 creators, and they fall out of two queries:
 
 ```sql
 -- title links. Main wins where BHL records a pair as both
@@ -214,20 +153,11 @@ giving
 <.../part/182775>       schema:creator     <.../creator/5597> .
 ```
 
-Note `/bibliography/{TitleID}`, not `/title/` — that is the URI `sql/sql2rdf.php` builds for
-a title, and the links have to agree with it to join up.
+Note `/bibliography/{TitleID}`, not `/title/` — that is the URI `sql/sql2rdf.php` builds for a title, and the links have to agree with it to join up.
 
-The `GROUP BY` in the first query is doing real work. 1,682 creator+title pairs — 0.444% of
-the 378,859 distinct pairs — are recorded by BHL as both `Main` and `Added`, and without it
-each would emit `schema:creator` and `schema:contributor` for the same pair, claiming and
-disclaiming the work at once. 380,541 triples become 378,859. Nothing is formally violated by
-leaving them in, since the two predicates are not disjoint, but a query for "who created
-this" would also find them listed as a contributor.
+The `GROUP BY` in the first query is doing real work. 1,682 creator+title pairs — 0.444% of the 378,859 distinct pairs — are recorded by BHL as both `Main` and `Added`, and without it each would emit `schema:creator` and `schema:contributor` for the same pair, claiming and disclaiming the work at once. 380,541 triples become 378,859. Nothing is formally violated by leaving them in, since the two predicates are not disjoint, but a query for "who created this" would also find them listed as a contributor.
 
-The seven `Not Specified` pairs fall to `contributor` under that `CASE`; flip the `ELSE` if
-they should go the other way, as they are genuinely untyped rather than added entries. And
-the part links are the honest weak point: `creator` there is an assumption, not something BHL
-recorded, and it covers 59% of all credits.
+The seven `Not Specified` pairs fall to `contributor` under that `CASE`; flip the `ELSE` if they should go the other way, as they are genuinely untyped rather than added entries. And the part links are the honest weak point: `creator` there is an assumption, not something BHL recorded, and it covers 59% of all credits.
 
 ## IIIF
 
@@ -247,62 +177,23 @@ item manifest   https://archive.org/details/{barcode}/manifest
 part manifest   https://www.biodiversitylibrary.org/part/{PartID}/manifest
 ```
 
-This looks inconsistent, and it is deliberate. Everything Internet Archive produces for an
-item is keyed on the barcode — `_scandata.xml`, `_djvu.xml`, hOCR, and the `_thumb`/`_large`/
-`_full` derivatives on AWS. Naming canvases after the barcode means any tool working on those
-files can emit canvas URIs without first resolving a BHL ItemID, and so without needing the
-BHL database at all. `iiif/canvas2rdf.php` is the working proof: it reads `canvas.sqlite`,
-knows nothing about ItemIDs, and still produces canvas triples that join up with everything
-else. Moving canvases into BHL's namespace would couple every Internet Archive-side tool to a
-lookup it does not otherwise need.
+This looks inconsistent, and it is deliberate. Everything Internet Archive produces for an item is keyed on the barcode — `_scandata.xml`, `_djvu.xml`, hOCR, and the `_thumb`/`_large`/ `_full` derivatives on AWS. Naming canvases after the barcode means any tool working on those files can emit canvas URIs without first resolving a BHL ItemID, and so without needing the BHL database at all. `iiif/canvas2rdf.php` is the working proof: it reads `canvas.sqlite`, knows nothing about ItemIDs, and still produces canvas triples that join up with everything else. Moving canvases into BHL's namespace would couple every Internet Archive-side tool to a lookup it does not otherwise need.
 
-Parts are the exception because there is nothing to derive from: a BHL part is an article
-within a scan, with no Internet Archive counterpart and no barcode of its own, so its manifest
-is minted under the part. `sql/sql2rdf.php` emits that URI as a `schema:encoding` on the part,
-and `sparql2iiif.php` reads it from the graph rather than minting it a second time.
+Parts are the exception because there is nothing to derive from: a BHL part is an article within a scan, with no Internet Archive counterpart and no barcode of its own, so its manifest is minted under the part. `sql/sql2rdf.php` emits that URI as a `schema:encoding` on the part, and `sparql2iiif.php` reads it from the graph rather than minting it a second time.
 
 Two things to be aware of before assuming this is a mistake and fixing it.
 
-These are identifiers, and for now they are not locations.
-`https://archive.org/details/{barcode}/manifest` returns `text/html` — Internet Archive's
-single-page app serves the details page for any sub-path, so the URI resolves, but to a web
-page rather than to a manifest. The same is true of the canvas URIs, and of the part manifests
-under biodiversitylibrary.org, which are not served at all.
+These are identifiers, and for now they are not locations. `https://archive.org/details/{barcode}/manifest` returns `text/html` — Internet Archive's single-page app serves the details page for any sub-path, so the URI resolves, but to a web page rather than to a manifest. The same is true of the canvas URIs, and of the part manifests under biodiversitylibrary.org, which are not served at all.
 
-This is a known break rather than a principle, parked deliberately. A IIIF manifest URI is
-supposed to dereference to the manifest, and viewers have been driven from fixed local files
-during development rather than from these URIs. Where the manifests get served from, and
-therefore what they should be called, is a question for the client that will consume this
-subset, and answering it before there is a client would be guessing. Until then, treat the
-URIs as names that happen to look like URLs.
+This is a known break rather than a principle, parked deliberately. A IIIF manifest URI is supposed to dereference to the manifest, and viewers have been driven from fixed local files during development rather than from these URIs. Where the manifests get served from, and therefore what they should be called, is a question for the client that will consume this subset, and answering it before there is a client would be guessing. Until then, treat the URIs as names that happen to look like URLs.
 
-Internet Archive's own IIIF is alive and lives elsewhere. It has not been dropped:
-`https://iiif.archive.org/iiif/{barcode}/manifest.json` serves a Presentation 3 manifest with
-a full Image API service over the jp2s, and for `journalofarach3832010amer` it agrees with us
-on the canvas dimensions, 2900 × 3856. Its identifiers are different from ours — the canvases
-are `https://iiif.archive.org/iiif/{barcode}$0/canvas` — so we are not reusing their
-identifiers and never were.
+Internet Archive's own IIIF is alive and lives elsewhere. It has not been dropped: `https://iiif.archive.org/iiif/{barcode}/manifest.json` serves a Presentation 3 manifest with a full Image API service over the jp2s, and for `journalofarach3832010amer` it agrees with us on the canvas dimensions, 2900 × 3856. Its identifiers are different from ours — the canvases are `https://iiif.archive.org/iiif/{barcode}$0/canvas` — so we are not reusing their identifiers and never were.
 
-That manifest is not a substitute for generating our own, for two reasons. The first is
-control: it carries no `structures`, so no table of contents, which is exactly the part/item
-relationship this repo exists to model, and it can carry nothing else we want either — OCR
-annotations tied to BHL page ids, taxonomic names, anything from Zooniverse. The second is
-that depending on someone else's service to render our data makes the model hostage to their
-roadmap. Linking to it with `rdfs:seeAlso` would be worth doing and costs nothing. Adding it
-as a second `schema:encoding` of type `application/ld+json` would not: `item_manifest_query()`
-matches an item's manifest by exactly that pattern, so a second one binds `?manifest` twice
-and the CONSTRUCT quietly produces a manifest crossed with itself.
+That manifest is not a substitute for generating our own, for two reasons. The first is control: it carries no `structures`, so no table of contents, which is exactly the part/item relationship this repo exists to model, and it can carry nothing else we want either — OCR annotations tied to BHL page ids, taxonomic names, anything from Zooniverse. The second is that depending on someone else's service to render our data makes the model hostage to their roadmap. Linking to it with `rdfs:seeAlso` would be worth doing and costs nothing. Adding it as a second `schema:encoding` of type `application/ld+json` would not: `item_manifest_query()` matches an item's manifest by exactly that pattern, so a second one binds `?manifest` twice and the CONSTRUCT quietly produces a manifest crossed with itself.
 
 ### Canvas dimensions
 
-Parsing a `scandata.xml` file per item works, but it means fetching one file at a
-time and re-deriving the same facts on every run. The [bhl-scandata](https://github.com/rdmpage/bhl-scandata)
-repo has already done that pass over all 347,130 scandata files in the bucket, so
-`iiif/canvas2rdf.php` reads the answer out of a database instead. It emits exactly
-the triples `iiif/scan2rdf.php` does — the two were run against every scandata
-file in `iiif/scandata/` and agree triple for triple on all eight — but it answers
-in 0.07s for any of the 346,858 items in the database, rather than only for the
-ones whose XML has been downloaded.
+Parsing a `scandata.xml` file per item works, but it means fetching one file at a time and re-deriving the same facts on every run. The [bhl-scandata](https://github.com/rdmpage/bhl-scandata) repo has already done that pass over all 347,130 scandata files in the bucket, so `iiif/canvas2rdf.php` reads the answer out of a database instead. It emits exactly the triples `iiif/scan2rdf.php` does — the two were run against every scandata file in `iiif/scandata/` and agree triple for triple on all eight — but it answers in 0.07s for any of the 346,858 items in the database, rather than only for the ones whose XML has been downloaded.
 
 ```sh
 php iiif/canvas2rdf.php journalofarach3832010amer > item.nt
@@ -322,53 +213,21 @@ CREATE TABLE canvas
 ) WITHOUT ROWID;
 ```
 
-66,052,352 rows, 2.7 GB, and not in git. Rebuild it with `php
-04-export-canvas.php --out=/path/to/bhl-as-linked-data/canvas.sqlite` in the
-bhl-scandata repo, which takes about six minutes and needs that repo's
-`pages.sqlite` (13 GB, on the external volume).
+66,052,352 rows, 2.7 GB, and not in git. Rebuild it with `php 04-export-canvas.php --out=/path/to/bhl-as-linked-data/canvas.sqlite` in the bhl-scandata repo, which takes about six minutes and needs that repo's `pages.sqlite` (13 GB, on the external volume).
 
 Three things are already applied, so nothing downstream has to remember them:
 
-- Leaves excluded from the access formats are **not in the table**. Colour cards,
-  targets and leaves marked `Delete` are photographed but never shown, and a
-  manifest built without consulting `addToAccessFormats` shows them anyway.
-- `seq` is a 1-based counter over the leaves that remain, and it is what appears
-  in the `_thumb`/`_large`/`_full` derivative filenames. It is **not** `leafNum`.
-  The two diverge from the first excluded leaf onwards, and because both numbers
-  usually resolve, the wrong one returns a different page's image with HTTP 200
-  rather than a 404. `leaf` is kept alongside as the link back to the scan data
-  and to the OCR.
-- `width` and `height` are the `cropBox`, which is the size of the image actually
-  served and the coordinate space IA's OCR uses, falling back to
-  `origWidth`/`origHeight` for the older scribe-format items that have no cropBox.
+- Leaves excluded from the access formats are **not in the table**. Colour cards, targets and leaves marked `Delete` are photographed but never shown, and a manifest built without consulting `addToAccessFormats` shows them anyway.
+- `seq` is a 1-based counter over the leaves that remain, and it is what appears in the `_thumb`/`_large`/`_full` derivative filenames. It is **not** `leafNum`. The two diverge from the first excluded leaf onwards, and because both numbers usually resolve, the wrong one returns a different page's image with HTTP 200 rather than a 404. `leaf` is kept alongside as the link back to the scan data and to the OCR.
+- `width` and `height` are the `cropBox`, which is the size of the image actually served and the coordinate space IA's OCR uses, falling back to `origWidth`/`origHeight` for the older scribe-format items that have no cropBox.
 
-A dimension the scan data does not give is `NULL`, never `0` — 5,662 leaves carry
-zeroes in the source, and a zero would assert a canvas size that is wrong rather
-than one that is missing. `canvas2rdf.php` skips those canvases and says so on
-stderr.
+A dimension the scan data does not give is `NULL`, never `0` — 5,662 leaves carry zeroes in the source, and a zero would assert a canvas size that is wrong rather than one that is missing. `canvas2rdf.php` skips those canvases and says so on stderr.
 
-Keying on barcode rather than on the `<bookId>` element the scan data carries is
-safe for BHL: the two are identical for every BHL item, and also identical to the
-Internet Archive identifier the canvas URIs are built from. They do diverge for
-the ~34,000 items in the bucket that BHL does not hold — `121030` is
-`McGillLibrary-121030-1534`, the Springer items are prefixed `springer_` — and for
-those the derivatives live under the bookId, not the barcode.
+Keying on barcode rather than on the `<bookId>` element the scan data carries is safe for BHL: the two are identical for every BHL item, and also identical to the Internet Archive identifier the canvas URIs are built from. They do diverge for the ~34,000 items in the bucket that BHL does not hold — `121030` is `McGillLibrary-121030-1534`, the Springer items are prefixed `springer_` — and for those the derivatives live under the bookId, not the barcode.
 
-Comparing the two generators turned up a bug in `scan2rdf.php`, now fixed: its
-`addToAccessFormats` test had no namespace-qualified alternative, so in the older
-scribe format — which declares `xmlns="http://archive.org/scribe/xml"` — the test
-matched nothing and every excluded leaf became a canvas anyway. It affected
-`magazineofnatura01loud`, whose last four leaves are colour and white cards, and
-the manifest and `.nt` in this repo still carry them. The failure is worse than
-four spurious canvases at the end: an excluded leaf in the *middle* of an item
-shifts every canvas after it against its image, and both numbers resolve, so the
-manifest looks right and shows the wrong page. `scan.php` has the same blind spot
-in a louder form — it does not register the namespace at all, so a scribe-format
-item yields no canvases rather than wrong ones.
+Comparing the two generators turned up a bug in `scan2rdf.php`, now fixed: its `addToAccessFormats` test had no namespace-qualified alternative, so in the older scribe format — which declares `xmlns="http://archive.org/scribe/xml"` — the test matched nothing and every excluded leaf became a canvas anyway. It affected `magazineofnatura01loud`, whose last four leaves are colour and white cards, and the manifest and `.nt` in this repo still carry them. The failure is worse than four spurious canvases at the end: an excluded leaf in the *middle* of an item shifts every canvas after it against its image, and both numbers resolve, so the manifest looks right and shows the wrong page. `scan.php` has the same blind spot in a louder form — it does not register the namespace at all, so a scribe-format item yields no canvases rather than wrong ones.
 
-Coverage is 312,575 of the 315,211 barcodes in BHL's item table. The 2,636 without
-scandata have no dimensions here at all; `iiif.archive.org` serves manifests with
-dimensions already filled in and is the obvious fallback.
+Coverage is 312,575 of the 315,211 barcodes in BHL's item table. The 2,636 without scandata have no dimensions here at all; `iiif.archive.org` serves manifests with dimensions already filled in and is the obvious fallback.
 
 ### IIIF viewers
 
@@ -418,50 +277,75 @@ Three failure modes cost enough time to be worth recording, because none produce
 
 `CONCAT` also rejects non-string literals. `schema:position` is an `xsd:integer`, so it needs wrapping in `STR()`; passing it raw fails the same silent way.
 
-A third silent failure has the same shape but a different cause: an unbound variable in the
-`CONSTRUCT` template. The item query kept its page label behind a commented-out `OPTIONAL`
-while still emitting `?canvas rdfs:label ?label`, so `?label` never bound and every label
-triple was quietly dropped. Nothing errors — the manifest is simply built without labels, and
-a viewer shows a run of unnamed pages. The same applies to any template triple whose object
-comes from a pattern that has been disabled or forgotten.
+A third silent failure has the same shape but a different cause: an unbound variable in the `CONSTRUCT` template. The item query kept its page label behind a commented-out `OPTIONAL` while still emitting `?canvas rdfs:label ?label`, so `?label` never bound and every label triple was quietly dropped. Nothing errors — the manifest is simply built without labels, and a viewer shows a run of unnamed pages. The same applies to any template triple whose object comes from a pattern that has been disabled or forgotten.
 
-The general lesson is that when a property is missing from the framed manifest, an unbound
-variable — a `BIND` that failed, or a pattern that is not there — is a likelier culprit than
-the framing. It is also worth checking what the triple store actually holds before debugging a
-query: the store here is grown incrementally, so a query can be correct and still return
-nothing.
+The general lesson is that when a property is missing from the framed manifest, an unbound variable — a `BIND` that failed, or a pattern that is not there — is a likelier culprit than the framing. It is also worth checking what the triple store actually holds before debugging a query: the store here is grown incrementally, so a query can be correct and still return nothing.
 
 ### Pattern order, which decides whether a query takes a second or two minutes
 
-Oxigraph plans these queries broadly in the order they are written, so where a pattern sits
-changes the runtime by two orders of magnitude. Three measurements from `sparql2iiif.php`
-against the BHL Lite store, each returning exactly the same solutions as the fast version:
+Oxigraph plans these queries broadly in the order they are written, so where a pattern sits changes the runtime by two orders of magnitude. Three measurements from `sparql2iiif.php` against the BHL Lite store, each returning exactly the same solutions as the fast version:
 
 | | placed early | placed late |
 |---|---|---|
 | OCR triple patterns (required) | **0.22s**, before the `BIND`s | 76s, after them |
 | page label `OPTIONAL` | 115s, among the triple patterns | **0.24s**, last of all |
 
-The rule that falls out is **required patterns first, then `BIND`s, then `OPTIONAL`s**, and the
-two halves are opposites, which is what makes it easy to get wrong.
+The rule that falls out is **required patterns first, then `BIND`s, then `OPTIONAL`s**, and the two halves are opposites, which is what makes it easy to get wrong.
 
-A required pattern belongs before the `BIND`s because Oxigraph evaluates a `BIND` where it
-meets it and joins what follows against the result — so triple patterns written after one are
-matched per solution rather than planned against the indexes. `schema:encoding`,
-`schema:MediaObject` and `encodingFormat "text/plain"` each match around 2.1 million triples
-here, which is the difference between an index lookup and a scan.
+A required pattern belongs before the `BIND`s because Oxigraph evaluates a `BIND` where it meets it and joins what follows against the result — so triple patterns written after one are matched per solution rather than planned against the indexes. `schema:encoding`, `schema:MediaObject` and `encodingFormat "text/plain"` each match around 2.1 million triples here, which is the difference between an index lookup and a scan.
 
-An `OPTIONAL` belongs last for the mirror-image reason. By the end of the query the left side
-of the join is the handful of solutions already found, so the left join is trivial; written up
-with the other patterns it is planned against all 1,904,112 `schema:name` triples instead.
+An `OPTIONAL` belongs last for the mirror-image reason. By the end of the query the left side of the join is the handful of solutions already found, so the left join is trivial; written up with the other patterns it is planned against all 1,904,112 `schema:name` triples instead.
 
-Both effects grow with the store, so neither gets better with more data. Dropping redundant
-patterns is not the fix — removing the `rdf:type` from the OCR block, which is implied by
-`schema:encoding` anyway, took 76s to 66s and no further. It is the position that matters.
+Both effects grow with the store, so neither gets better with more data. Dropping redundant patterns is not the fix — removing the `rdf:type` from the OCR block, which is implied by `schema:encoding` anyway, took 76s to 66s and no further. It is the position that matters.
 
 ## Annotations
 
-There are already multiple sources of annotations of BHL content, such as taxonomic names from Global Names, tagged images on Flickr, etc. 
+There are already multiple sources of annotations of BHL content, such as taxonomic names from Global Names, tagged images on Flickr, etc. These annotations have the potential to enhance the discoverability and value of BHL content.
+
+### Geotagging
+
+The model for a geotag is:
+
+```
+<BHL/page/57579616/annotation/geo/136-160>        one coordinate, found at one spot on one page
+  │
+  ├─ a                oa:Annotation
+  ├─ oa:motivatedBy   oa:tagging
+  │
+  ├─ oa:hasBody ────► <geo:-23.76551,30.00253>            WHAT IT MEANS — the place
+  │                     │
+  │                     └─ geosparql:asWKT  "POINT(30.00253 -23.76551)"^^geosparql:wktLiteral
+  │
+  └─ oa:hasTarget ──► <…/annotation/geo/136-160/target>   WHERE IT SAYS SO — the words
+       │
+       ├─ a               oa:SpecificResource
+       ├─ oa:hasSource ─► <…/ocr/item-262715/item-262715-57579616-0022.txt>
+       │                                          the OCR text the offsets count into
+       ├─ oa:hasScope  ─► <BHL/page/57579616>     the BHL page those words are printed on
+       │
+       ├─ oa:hasSelector ─► <…/geo/136-160/position>
+       │                      ├─ a          oa:TextPositionSelector
+       │                      ├─ oa:start   "136"^^xsd:nonNegativeInteger
+       │                      └─ oa:end     "160"^^xsd:nonNegativeInteger
+       │
+       └─ oa:hasSelector ─► <…/geo/136-160/quote>
+                              ├─ a           oa:TextQuoteSelector
+                              ├─ oa:exact    "23.76551° S, 30.00253° E"
+                              ├─ oa:prefix   "o, Wolkberg, Grootbosch Forest, "
+                              └─ oa:suffix   ", 1600 m, \r\nAfromontane forest, "
+```
+
+The three things worth a sentence of prose under it, since the diagram can't say them:
+
+Why the body is a geo: URI. The place is in the identifier, so no lookup is needed to get coordinates back, and two pages reporting the same point converge on one node with no reconciliation. asWKT is there because a geo: URI is opaque to a triple store — nothing can filter on it. Axis order differs between the two: the URI is latitude,longitude per RFC 5870, WKT is x y.
+
+Why the source is the .txt and not the page. 136 is meaningless until you say 136 characters into what, and BHL could publish a second transcription of the same page tomorrow with different offsets. oa:hasScope is the model's own property for a source that only means something inside a larger context, and it's what carries the BHL page id.
+
+Why there are two selectors. The position is exact but brittle; the quote is fuzzy but relocatable. Re-OCR the page and the offsets move while prefix + exact + suffix still finds it. That's also why oa:exact keeps its line breaks escaped rather than flattened — it has to match the text byte for byte.
+
+
+
+
 
 ### Zooniverse
 

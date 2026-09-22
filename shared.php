@@ -134,7 +134,11 @@ function dump_triples($triples)
 		foreach ($t as $element)
 		{
 			// Is this a URI?
-			if (preg_match('/^(https?|urn):/', $element))
+			//
+			// geo: is here for the geotag annotations, whose body is an RFC 5870 URI rather
+			// than a minted http one. Without it the body is emitted bare, which is not a
+			// valid N-Triples object at all and takes the rest of the file down with it.
+			if (preg_match('/^(https?|urn|geo):/', $element))
 			{
 				$element = '<' . $element . '>';
 			}
