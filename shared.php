@@ -14,9 +14,7 @@ if (php_sapi_name() === 'cli')
 	ini_set('display_errors', 'stderr');
 }
 
-$config['aws'] = 'https://bhl-open-data.s3.us-east-2.amazonaws.com';
-$config['bhl']  = 'https://www.biodiversitylibrary.org';
-$config['ia']  = 'https://archive.org/details';
+require_once (dirname(__FILE__) . '/config.inc.php');
 
 //----------------------------------------------------------------------------------------
 // Make a URI play nice with triple store
@@ -239,7 +237,29 @@ function create_encoding_triples(&$triples, $work, $encoding, $mime_type)
 	$p = 'https://schema.org/encodingFormat';	
 	$o = '"' . nice_literal($mime_type) . '"';		
 	$triples[] = [$s, $p, $o];	
-}		
+}	
+
+//----------------------------------------------------------------------------------------
+// convert true|false to convert to a typed Boolean
+function create_boolean(&$triples, $value, $subject_uri, $predicate_uri = 'https://schema.org/isAccessibleForFree')
+{
+	$s = $subject_uri;
+	$p = $predicate_uri;
+	
+	if ($value)
+	{
+		$o = '"true"';
+	}
+	else
+	{
+		$o = '"false"';
+	
+	}
+	$o = $o . '^^<http://www.w3.org/2001/XMLSchema#boolean>';
+	$triples[] = [$s, $p, $o];
+
+	return true;
+}	
 
 
 

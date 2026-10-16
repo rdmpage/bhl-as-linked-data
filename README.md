@@ -2,14 +2,26 @@
 
 Experiments to render BHL as linked data. 
 
-Note that the goal is not to simply map BHL data dump tables onto arbitrary RDF, but model BHL data such that we could, in principle, build a BHL web interface using SPARQL queries. Leaving aside the wisdom of trying to run BHL on a triple store, setting that as a goal helps clarify the modelling. 
+Note that the goal is not to simply map BHL data dump tables onto arbitrary RDF, but to model BHL data such that we could, in principle, build a BHL web interface (including APIs) using SPARQL queries. Leaving aside the wisdom of trying to run BHL on a triple store, setting that as a goal helps clarify the modelling.
 
 One goal, for example, is to be be able to generate a IIIF manifest for a BHL item from the RDF. This enables us to visually test whether our model works (e.g., can we support page order, the relationship between parts and items, etc?). Because a IIIF viewer natively speaks RDF (the manifest file for a viewer is a JSON-LD document), it also means that we start to think about images and text as annotations, along with more obvious annotations such as taxonomic names, geographic places, etc. Hence, the idea of supporting multiple sources of OCR, for example, becomes more natural.
 
 Another goal is to keep the RDF as simple as possible, hence everything is modelled using terms from schema.org. This minimises cognitive load (you only have to remember the term, not which vocabulary it came from), and it aligns with the growing use of schema.org, for example by the publishing industry to model journal articles, and by the [Bioschemas](https://bioschemas.org) project to model biological databases, taxa and taxonomic names, etc.
 
-Much of the reast of this README has been written by Claude Code, especially some of the more technical details around choice of vocablaries, and ensuring the IIIF manifest renders correctly.
+For an RDF datasource to avoid being a silo it needs to be embedded in a larger knowledge graph. The widespread use of links to BHL pages by taxonomic databases means that we potentially have numerous inbound links that can be regarded as votes on the importance of a page. Likewise the use of BHL content in other projects (such as Flickr) is a further signal of the value of a page.
 
+### Authorship
+
+Much of the rest of this README has been written by Claude Code, especially some of the more technical details around choice of vocablaries, and ensuring the IIIF manifest renders correctly.
+
+## Identifiers
+
+Still working through how to link to other resources.
+
+- DOIs should clearly be `https://doi.org/`
+- ISSNs support content negotiation for JSON-LD for http://issn.org/resource/ISSN/2589-3831 (note that the `@id` in the JSON-LD is `http` not `https`), so that’s the obvious URI for ISSNs.
+- Library of congress defeats me for now as there is bibframe, but no obvious way AFAIK to go from the identifiers used by BHL to RDF (which will be BibFrame, so who wants that?)
+- OCLC embeds JSON-LD in HTML (sometimes), e.g. https://search.worldcat.org/title/794348397 (same value for `@id`).
 
 ## Vocabulary
 

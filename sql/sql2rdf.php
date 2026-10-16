@@ -189,6 +189,8 @@ function get_title($TitleID)
 	
 	foreach ($data as $row)
 	{
+		// titles seem to have primary and secondary creators, 
+		// so split between creator and contributor roles
 		if (preg_match('/^Main/', $row->CreatorType))
 		{
 			$title->creator[] = $row->CreatorID;
@@ -381,12 +383,65 @@ function get_title($TitleID)
 	
 	return $title;
 }
+
+//----------------------------------------------------------------------------------------
+// BHL has two kinds of items, "physical" and "virtual"
+// Physical items represent scanned or uploaded digital items, virtual items are
+// assembled from individual parts, e.g. Pensoft PDFs. The key difefrence is that there
+// is no Internet Archive record for a virtual item, but there are for its member parts.
+// This means generating image links and canvas dimensions for virtual items is different
+// than normal "physical" items.
+function item_is_virtual($ItemID)
+{
+	$is_virtual = false;
+	
+	$sql = "SELECT * FROM part WHERE ItemID=$ItemID AND BarCode IS NOT NULL";
+	$data = db_get($sql);
+	
+	if (count($data) > 0)
+	{
+		$is_virtual = true;
+	}
+	
+	return $is_virtual;
+}
+
+//----------------------------------------------------------------------------------------
+// Get one or more Internet Archive items associated with an Item
+function get_item_ia ($ItemID)
+{
+	$barcodes = [];
+	
+	$is_virtual = item_is_virtual($ItemID);
+	
+	if ($is_virtual)
+	{
+		$sql = 'SELECT ItemID, BarCode FROM part WHERE ItemID='. $ItemID;
+	}
+	else
+	{		
+		// get individual item
+		$sql = 'SELECT DISTINCT ItemID, BarCode FROM item WHERE ItemID='. $ItemID;
+	}
+	
+	$data = db_get($sql);
+	
+	foreach ($data as $row)
+	{
+		$barcodes[] = $row->BarCode;
+	}
+	
+	return $barcodes;
+}
+
 //----------------------------------------------------------------------------------------
 // Get item
-function get_item ($ItemID )
+function get_item ($ItemID)
 {
 	global $config;
 	
+	$is_virtual = item_is_virtual($ItemID);
+		
 	// get individual item
 	$sql = 'SELECT DISTINCT ItemID, VolumeInfo, TitleID, ThumbnailPageID, Year, InstitutionName, CopyrightStatus, BarCode
 	FROM item';
@@ -412,7 +467,14 @@ function get_item ($ItemID )
 			}
 			else
 			{
-				$item->name = '[' . $row->BarCode . ']';
+				if (isset($row->BarCode))
+				{
+					$item->name = '[' . $row->BarCode . ']';
+				}
+				else
+				{
+					$item->name = '[Untitled]';				
+				}
 			}
 				
 			$item->isPartOf = $config['bhl'] . '/bibliography/' . $row->TitleID;
@@ -438,7 +500,7 @@ function get_item ($ItemID )
 			}
 		
 			// to do, maybe change this?
-			if (isset($row->BarCode))
+			if (isset($row->BarCode) && !$is_virtual)
 			{
 				$item->barcode = $row->BarCode;
 			}
@@ -566,13 +628,8 @@ function get_item ($ItemID )
 		}
 	}
 	
-	// Internet Archive
-	$s = $item->id;
-	$p = 'https://schema.org/sameAs';
-	$o = 'https://archive.org/details/' . $item->barcode;		
-	$triples[] = [$s, $p, $o];	
 	
-	// item is part of a title, or of more than one
+	// item is part of a title, or of more than one title
 	//
 	// One triple per title. Handing dump_triples() the array itself wrote the literal text
 	// "Array" into the output as the object, which is not valid N-Triples and lost the link
@@ -601,13 +658,28 @@ function get_item ($ItemID )
 		$triples[] = [$s, $p, $o];	
 	}
 	
+	// to convince overzealous AI chatbots that BHL is free
+	create_boolean($triples, true, $item->id, 'https://schema.org/isAccessibleForFree');
+	
 	// content
-	// IIIF	
-	$canvas = 'https://archive.org/details/' . $item->barcode . "/manifest";	
-	create_encoding_triples($triples, $item->id, $canvas, "application/ld+json");
+	if (!$is_virtual)
+	{
+		// non virtual items have matching Internet Archive item
 
-	$pdf = $config['bhl'] . '/itempdf/' . $ItemID;
-	create_encoding_triples($triples, $item->id, $pdf, "application/pdf");
+		// Internet Archive
+		$s = $item->id;
+		$p = 'https://schema.org/sameAs';
+		$o = 'https://archive.org/details/' . $item->barcode;		
+		$triples[] = [$s, $p, $o];	
+	
+		// IIIF, manifest URI is intended to be resolvable
+		$manifest = $config['ld4bhl'] . '/item/' . $ItemID . "/manifest";	
+		create_encoding_triples($triples, $item->id, $manifest, "application/ld+json");
+
+		// PDF can be downloaded from BHL
+		$pdf = $config['bhl'] . '/itempdf/' . $ItemID;
+		create_encoding_triples($triples, $item->id, $pdf, "application/pdf");
+	}
 			
 	$output = dump_triples($triples);			
 	echo $output . "\n";
@@ -615,38 +687,48 @@ function get_item ($ItemID )
 
 //----------------------------------------------------------------------------------------
 // Get pages for item
-function get_item_pages($ItemID = null)
+function get_item_pages($ItemID)
 {
 	global $config;
 	
-	// Item pages
-	//
-	// The join is against a deduplicated item rather than item itself. 9,050 items have two
-	// rows there, one per title they belong to, and joining the table raw fetches every page
-	// of those items twice. The output is unaffected -- pages are collected into $pages by
-	// PageID below, so the duplicate rows collapse before any triple is emitted -- but there
-	// is no reason to carry them through the query. Deduplicating the small side is 324,356
-	// rows down to 315,211, and every ItemID has exactly one BarCode, so it cannot drop a
-	// row.
-	//
-	// Not a DISTINCT on the result: that would sort all 68.7 million pages, and it would also
-	// be wrong, since 4,773,027 pages legitimately appear several times carrying different
-	// PageTypeName values, which is what the keywords below collect.
-	$sql = 'SELECT PageID, ItemID, BarCode, SequenceOrder, PagePrefix, PageNumber, PageTypeName FROM page';
-	$sql .= ' INNER JOIN (SELECT DISTINCT ItemID, BarCode FROM item) AS item USING(ItemID)';
+	$is_virtual = item_is_virtual($ItemID);
 	
-	if ($ItemID)
+	
+	if ($is_virtual)
 	{
-		$sql .= ' WHERE ItemID='. $ItemID;
+		// Virtual items have multiple IA records and this information is in the part and
+		// partpage tables
+		$sql = 'SELECT partpage.PageID, partpage.ItemID, part.BarCode,
+       part.PartID, part.SequenceOrder AS PartOrder,
+       partpage.SequenceOrder
+FROM partpage
+INNER JOIN part ON part.PartID = partpage.PartID
+WHERE partpage.ItemID = ' . $ItemID . '
+ORDER BY CAST(part.SequenceOrder AS INTEGER),
+         CAST(partpage.SequenceOrder AS INTEGER);';
+	}
+	else
+	{
+		// Item pages
+		//
+		// The join is against a deduplicated item rather than item itself. 9,050 items have two
+		// rows there, one per title they belong to, and joining the table raw fetches every page
+		// of those items twice. The output is unaffected -- pages are collected into $pages by
+		// PageID below, so the duplicate rows collapse before any triple is emitted -- but there
+		// is no reason to carry them through the query. Deduplicating the small side is 324,356
+		// rows down to 315,211, and every ItemID has exactly one BarCode, so it cannot drop a
+		// row.
+		//
+		// Not a DISTINCT on the result: that would sort all 68.7 million pages, and it would also
+		// be wrong, since 4,773,027 pages legitimately appear several times carrying different
+		// PageTypeName values, which is what the keywords below collect.
+		$sql = 'SELECT PageID, ItemID, BarCode, SequenceOrder, PagePrefix, PageNumber, PageTypeName FROM page';
+		$sql .= ' INNER JOIN (SELECT DISTINCT ItemID, BarCode FROM item) AS item USING(ItemID)';
+		$sql .= ' WHERE ItemID='. $ItemID;	
+		$sql .= ' ORDER BY ItemID, CAST(SequenceOrder AS INTEGER)';
 	}
 	
-	$sql .= ' ORDER BY ItemID, CAST(SequenceOrder AS INTEGER)';
-	
 	$data = db_get($sql);
-	
-	//print_r($data);
-	
-	$page_counter = 1;
 	
 	$pages = array();
 	
@@ -678,15 +760,32 @@ function get_item_pages($ItemID = null)
 			}			
 		}
 		
-		// Canvas
-		$pages[$row->PageID]->canvas = $config['ia'] . "/" . $row->BarCode . "/canvas/p" . str_pad($row->SequenceOrder, 4, '0', STR_PAD_LEFT);
+		// Virtual items have PartIDs
+		if (isset($row->PartID))
+		{
+			$pages[$row->PageID]->PartID = $row->PartID;
+		}
+				
+		// Canvas (uses BarCode as part of id)
+		$pages[$row->PageID]->canvas = $config['ld4bhl'] . "/" . $row->BarCode . "/canvas/p" . str_pad($row->SequenceOrder, 4, '0', STR_PAD_LEFT);
 		
 		// OCR text
-		$pages[$row->PageID]->text = $config['aws'] . "/ocr/item-" . str_pad($row->ItemID, 6, '0', STR_PAD_LEFT) 
-			. '/item-' . str_pad($row->ItemID, 6, '0', STR_PAD_LEFT)
-			. '-' . str_pad($row->PageID, 8, '0', STR_PAD_LEFT) . '-' . str_pad($row->SequenceOrder, 4, '0', STR_PAD_LEFT) . '.txt';
-
-		// Image
+		if ($is_virtual)
+		{
+			// Part OCR
+			$pages[$row->PageID]->text = $config['aws'] . "/ocr/part-" . str_pad($row->PartID, 6, '0', STR_PAD_LEFT) 
+				. '/part-' . str_pad($row->PartID, 6, '0', STR_PAD_LEFT)
+				. '-' . str_pad($row->PageID, 8, '0', STR_PAD_LEFT) . '-' . str_pad($row->SequenceOrder, 4, '0', STR_PAD_LEFT) . '.txt';
+		}
+		else
+		{
+			// Item OCR
+			$pages[$row->PageID]->text = $config['aws'] . "/ocr/item-" . str_pad($row->ItemID, 6, '0', STR_PAD_LEFT) 
+				. '/item-' . str_pad($row->ItemID, 6, '0', STR_PAD_LEFT)
+				. '-' . str_pad($row->PageID, 8, '0', STR_PAD_LEFT) . '-' . str_pad($row->SequenceOrder, 4, '0', STR_PAD_LEFT) . '.txt';
+		}
+		
+		// Image (Uses BarCode as part of id)
 		$pages[$row->PageID]->image = $config['aws'] . "/web/" . $row->BarCode . "/" . $row->BarCode . "_" . str_pad($row->SequenceOrder, 4, '0', STR_PAD_LEFT) . "_full.webp";
 		
 		// Thumbnail
@@ -978,18 +1077,19 @@ function get_part($PartID)
 			break;
 	}
 	
+	// What kind of CreativeWork?
 	$s = $part->id;
 	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 	$o = 'https://schema.org/' . $part->type;		
 	$triples[] = [$s, $p, $o];	
 	
-	// Part is a DataFeed (for list of pages)
+	// Part is also a DataFeed (for list of pages)
 	$s = $part->id;
 	$p = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 	$o = 'https://schema.org/DataFeed';		
 	$triples[] = [$s, $p, $o];	
 	
-	// position in item
+	// position within the parts in then containing item
 	if (isset($part->position))
 	{
 		$s = $part->id;
@@ -1005,7 +1105,7 @@ function get_part($PartID)
 	$triples[] = [$s, $p, $o];	
 	
 	// other bibliographic details...? careful, we sorta break schema's model 
-	// if we have volume and issue
+	// if we have volume and issue as properties of a part
 	if (isset($part->pagination))
 	{
 		$s = $part->id;
@@ -1014,7 +1114,7 @@ function get_part($PartID)
 		$triples[] = [$s, $p, $o];		
 	}
 	
-	// part of item
+	// part isPartOf an item
 	$s = $part->id;
 	$p = 'https://schema.org/isPartOf';
 	$o = $config['bhl'] . '/item/' . $part->isPartOf;		
@@ -1054,13 +1154,16 @@ function get_part($PartID)
 		$triples[] = [$s, $p, $o];			
 	}
 	
+	// to convince overzealous AI chatbots that BHL is free
+	create_boolean($triples, true, $part->id, 'https://schema.org/isAccessibleForFree');	
+	
 	// date
 	if (isset($part->date))
 	{
 		create_date($triples, $part->date, $part->id, 'https://schema.org/datePublished');
 	}
 	
-	// link to creator id
+	// link to creator id(s)
 	foreach ($part->creator as $creator)
 	{
 		$s = $part->id;
@@ -1069,10 +1172,10 @@ function get_part($PartID)
 		$triples[] = [$s, $p, $o];			
 	}
 	
-	// note that we need DataFeedItems as list elements because
+	// note that we need DataFeedItems as to be list elements because
 	// the position of a page in the list is a property of the list element,
 	// not the page, otherwise we end up with multiple positions assigned to
-	// the same page.
+	// the same page (e.g., if it occurs in multiple parts).
 	foreach ($pages as $position => $PageID)
 	{
 		$list_item_id = $part->id . '/page/' . str_pad($position, 4, '0', STR_PAD_LEFT);
@@ -1098,15 +1201,6 @@ function get_part($PartID)
 	$output = dump_triples($triples);			
 	echo $output . "\n";
 }
-
-
-
-$ItemID = 281611; // Monograph/Icones P no or little OCR in BHL!
-$ItemID = 199416; // frogs peru
-
-//get_item($ItemID );
-//get_item_pages($ItemID );
-
 
 //----------------------------------------------------------------------------------------
 // Read the BHL Lite CouchDB view, returning its item and title ids.
@@ -1269,6 +1363,16 @@ function get_bhl_lite($path)
 
 if (0)
 {
+	$ItemID = 281611; // Monograph/Icones P no or little OCR in BHL!
+	$ItemID = 199416; // frogs peru
+
+	//get_item($ItemID );
+	//get_item_pages($ItemID );
+
+}
+
+if (0)
+{
 	$TitleID = 57881;
 	$TitleID = 149317;
 	$TitleID = 40366;
@@ -1302,27 +1406,55 @@ if (0)
 	$PartID = 229238;
 	$PartID = 229257;
 	
+	$PartID = 308099; // part of a virtual item
+	
 	
 	get_part($PartID);
 	
 }	
 
-if (0)
+if (1)
 {
 	$ItemID = 223011;
+	$ia = 'journalofarach3832010amer';
 	
-	$ItemID = 16623;
+	$ItemID = 14608;
+	$ia = 'mobotbca_12_04_03';
+	
+	
+	$ItemID = 262715;
+	$ia = 'europeanjournal236muse';
+	
+	
+	$ItemID = 61794;
+	$ia = 'ser8annalsmagazi09londuoft';
+	
+	//$ItemID = 16623;
 	
 	//$ItemID = 19421; // Magazine of natural history and journal of zoology, botany, mineralog v. 1
+	
+	$ItemID = 341164; // virtual item (Pensoft)
+	
+	// get details for this item
 	get_item($ItemID);
+		
+	echo "\n";
 	
-	echo "\n\n";
+	// get barcode(s), may be multiple if we have a virtual item
+	// barcodes (Internet Archive identifiers) enable us to create AWS URLs for images
+	$barcodes = get_item_ia($ItemID);	
+	foreach ($barcodes as $ia)
+	{	
+		echo dump_triples(canvas_triples($ia));
+	}
 	
-	/*
+	// for virtual items these are in the partpages table, 
+	// for non-virtual they are in the pages table.
 	get_item_pages($ItemID);
 	
-	echo "\n\n";
+	echo "\n";
 	
+	// parts for this item
 	$parts = get_item_parts($ItemID);
 	
 	foreach ($parts as $PartID)
@@ -1330,8 +1462,6 @@ if (0)
 		get_part($PartID);
 		echo "\n\n";
 	}
-	*/
-	
 	
 }
 
@@ -1340,7 +1470,7 @@ if (0)
 //   php sql/sql2rdf.php > bhl-lite.nt 2> bhl-lite.log
 //
 // Set the block above to 0 first; both write to stdout.
-if (1)
+if (0)
 {
 	get_bhl_lite(dirname(dirname(__FILE__)) . '/couchdb-items-titles.json');
 }

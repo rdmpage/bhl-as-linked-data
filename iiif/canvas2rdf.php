@@ -32,11 +32,6 @@ error_reporting(E_ALL);
 
 require_once(dirname(dirname(__FILE__)) . '/shared.php');
 
-$config['canvas_db'] = dirname(dirname(__FILE__)) . '/canvas.sqlite';
-
-// Small WEBP derivatives are 150 pixels wide, large ones 930.
-$config['thumbnail_width'] = 150;
-
 //----------------------------------------------------------------------------------------
 // Canvases for an item, in page order
 function get_canvases($barcode)
@@ -113,7 +108,8 @@ function canvas_triples($barcode)
 			continue;
 		}
 
-		$s = $config['ia'] . "/" . $canvas->id;
+		// construct a canvas URI based on Internet Archive "barcode" and URL of website
+		$s = $config['ld4bhl'] . "/" . $canvas->id;
 
 		$p = 'http://www.w3.org/2003/12/exif/ns#width';
 		$o = '"' . $canvas->width . '"^^<http://www.w3.org/2001/XMLSchema#integer>';

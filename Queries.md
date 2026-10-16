@@ -102,7 +102,7 @@ ORDER BY ?givenName ?name
 
 ### Find all titles and items in a collection of “Monographic series”
 
-Large journals are sometimes divided into thematic series, such that we can have a complex set of overlapping lists of volumes, sometime numbered both w.r.t. to journal volume and the individual series. This query attempts to bring together all volumes across multiple titles, and requires just one initial title as a “seed”. Examples include title 40366 (Monographs in Systematic Botany) and title 2320 (Fieldiana).
+Large journals are sometimes divided into thematic series, such that we can have a complex set of overlapping lists of volumes, sometime numbered both w.r.t. to journal volume and the individual series. This query attempts to bring together all volumes across multiple titles, and requires just one initial title as a “seed”. Examples to try include title 40366 (Monographs in Systematic Botany), title 2320 (Fieldiana), and title 730 (Biologia Centrali-Americana).
 
 
 ```
@@ -130,6 +130,7 @@ ORDER BY ?volume
 Claude commentary on this query
 
 > You were right — 6 of the 41 items are in the cluster but not listed under 40366.
+
 
 > 325610  v. 13 1985    -> 149829 Index to plant chromosome numbers
 > 330456  v. 30 1990    -> 149829
@@ -201,5 +202,71 @@ Axis order flips between the body's two forms. The `geo:` URI is *latitude,longi
 ```
 
 Do not declare `PREFIX geo:` for GeoSPARQL in these queries, common though that convention is — `geo:` is also the scheme of the body URIs here, and the two will not stay distinguishable by eye. Hence `geosparql:` above.
+
+### Finding pages and works within an area
+
+Pages with geotags within a biounding box:
+
+```
+PREFIX oa: <http://www.w3.org/ns/oa#>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+
+SELECT ?page
+       (COUNT(DISTINCT ?place) AS ?localities)
+       (STRDT(CONCAT("MULTIPOINT((",
+                     GROUP_CONCAT(DISTINCT ?coordinates; SEPARATOR="), ("),
+                     "))"), geosparql:wktLiteral) AS ?wkt)
+WHERE {
+  ?annotation a oa:Annotation ;
+              oa:hasBody ?place ;
+              oa:hasTarget ?target .
+
+  ?place geosparql:asWKT ?point .
+  ?target oa:hasScope ?page .
+
+  # "POINT(80.674722 7.860194)" -> "80.674722 7.860194"
+  BIND(REPLACE(REPLACE(STR(?point), "^POINT\\s*\\(", ""), "\\)$", "") AS ?coordinates)
+
+  FILTER(geof:sfWithin(?point,
+    "POLYGON ((43.221222 -25.607111, 43.221222 -11.95125, 50.483749 -11.95125, 50.483749 -25.607111, 43.221222 -25.607111))"^^geosparql:wktLiteral))
+}
+GROUP BY ?page
+ORDER BY DESC(?localities)
+```
+
+Query to find parts within a bounding box (articles about Madagascar):
+
+```
+PREFIX oa: <http://www.w3.org/ns/oa#>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+
+SELECT ?page
+       (COUNT(DISTINCT ?place) AS ?localities)
+       (STRDT(CONCAT("MULTIPOINT((",
+                     GROUP_CONCAT(DISTINCT ?coordinates; SEPARATOR="), ("),
+                     "))"), geosparql:wktLiteral) AS ?wkt)
+WHERE {
+  ?annotation a oa:Annotation ;
+              oa:hasBody ?place ;
+              oa:hasTarget ?target .
+
+  ?place geosparql:asWKT ?point .
+  ?target oa:hasScope ?page .
+
+  # "POINT(80.674722 7.860194)" -> "80.674722 7.860194"
+  BIND(REPLACE(REPLACE(STR(?point), "^POINT\\s*\\(", ""), "\\)$", "") AS ?coordinates)
+
+  FILTER(geof:sfWithin(?point,
+    "POLYGON ((43.221222 -25.607111, 43.221222 -11.95125, 50.483749 -11.95125, 50.483749 -25.607111, 43.221222 -25.607111))"^^geosparql:wktLiteral))
+}
+GROUP BY ?page
+ORDER BY DESC(?localities)
+```
+
+
+
+
 
 

@@ -1,7 +1,6 @@
 <?php
 
-$config['triplestore'] = 'oxigraph';
-$config['sparql_endpoint'] = 'https://koetai.bionames.org/u/0000-0002-7101-9767/bhl/sparql';
+require_once (dirname(__FILE__) . '/config.inc.php');
 
 //----------------------------------------------------------------------------------------
 function get($url, $format = '')
