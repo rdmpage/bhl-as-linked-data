@@ -84,6 +84,53 @@ function bcp47_language($code)
 	return isset($map[$code]) ? $map[$code] : null;
 }
 
+
+//----------------------------------------------------------------------------------------
+// Thumbnail image URL for a page
+function get_page_thumbnail($PageID)
+{
+	global $config;
+	
+	$thumbnailUrl = '';
+	
+	$barcode = '';
+	$SequenceOrder = -1;
+	
+	// Normal item
+	if ($thumbnailUrl == '')
+	{
+		$sql = 'SELECT Item.BarCode, page.SequenceOrder, page.PageID FROM page INNER JOIN item USING(ItemID) WHERE PageID=' . $PageID . ' LIMIT 1';
+		
+		$data = db_get($sql);
+		
+		// print_r($data);
+
+		if (count($data) == 1)
+		{		
+			$thumbnailUrl = $config['aws'] . "/web/" . $data[0]->BarCode . "/" . $data[0]->BarCode . "_" . str_pad($data[0]->SequenceOrder, 4, '0', STR_PAD_LEFT) . "_thumb.webp";
+		}
+	}
+	
+	// Virtual item
+	if ($thumbnailUrl == '')
+	{
+		$sql = 'SELECT part.BarCode, partpage.SequenceOrder, partpage.PageID FROM partpage INNER JOIN part USING(PartID) WHERE PageID=' . $PageID . ' AND part.BarCode IS NOT NULL LIMIT 1';
+
+		$data = db_get($sql);
+		
+		// print_r($data);
+		
+		if (count($data) == 1)
+		{		
+			$thumbnailUrl = $config['aws'] . "/web/" . $data[0]->BarCode . "/" . $data[0]->BarCode . "_" . str_pad($data[0]->SequenceOrder, 4, '0', STR_PAD_LEFT) . "_thumb.webp";
+		}
+	}
+	
+	return $thumbnailUrl;
+	
+}	
+
+
 //----------------------------------------------------------------------------------------
 // Get list of items for a title
 function get_items_for_title($TitleID)
@@ -542,6 +589,20 @@ function get_item ($ItemID)
 	$o = '"' . nice_literal($item->name) . '"';		
 	$triples[] = [$s, $p, $o];	
 	
+	// thumbnail
+	if (isset($item->thumbnail))
+	{
+		$thumbnailUrl = get_page_thumbnail($item->thumbnail);
+		
+		if ($thumbnailUrl != '')
+		{
+			$s = $item->id;
+			$p = 'https://schema.org/thumbnailUrl';		
+			$o = $thumbnailUrl;
+			$triples[] = [$s, $p, $o];			
+		}
+	}
+	
 	// Post processing--------------------------------------------------------------------
 	// extract date and volume information from item name
 	// we do this to improve ability to find articles based on OpenURL-style queries
@@ -692,7 +753,6 @@ function get_item_pages($ItemID)
 	global $config;
 	
 	$is_virtual = item_is_virtual($ItemID);
-	
 	
 	if ($is_virtual)
 	{
@@ -914,6 +974,55 @@ function get_item_parts($ItemID)
 	return $parts;
 }
 
+//----------------------------------------------------------------------------------------
+// Get item thumbnail (intended to backfill cases where we've loaded data but not the
+// thumbnails)
+function get_item_thumbnails ($ItemID)
+{
+	global $config;
+		
+	// get individual item
+	$sql = 'SELECT DISTINCT ItemID, VolumeInfo, TitleID, ThumbnailPageID, Year, InstitutionName, CopyrightStatus, BarCode
+	FROM item';
+	$sql .= ' WHERE ItemID='. $ItemID;
+	
+	$data = db_get($sql);
+	
+	$item = null;
+	
+	foreach ($data as $row)
+	{	
+		if (!$item)
+		{
+			$item = new stdclass;		
+			$item->id = $config['bhl'] . '/item/' . $row->ItemID;
+			
+			if (isset($row->ThumbnailPageID))
+			{
+				$item->thumbnail = $row->ThumbnailPageID;
+			}
+		}
+	}
+	
+	if ($item && isset($item->thumbnail))
+	{
+		$thumbnailUrl = get_page_thumbnail($item->thumbnail);
+		
+		if ($thumbnailUrl != '')
+		{
+			$triples = [];
+			
+			$s = $item->id;
+			$p = 'https://schema.org/thumbnailUrl';		
+			$o = $thumbnailUrl;
+			$triples[] = [$s, $p, $o];		
+			
+			$output = dump_triples($triples);			
+			echo $output . "\n";				
+		}	
+	}
+}
+
 
 //----------------------------------------------------------------------------------------
 // Get part
@@ -1089,7 +1198,7 @@ function get_part($PartID)
 	$o = 'https://schema.org/DataFeed';		
 	$triples[] = [$s, $p, $o];	
 	
-	// position within the parts in then containing item
+	// position within the parts in the containing item
 	if (isset($part->position))
 	{
 		$s = $part->id;
@@ -1122,11 +1231,7 @@ function get_part($PartID)
 	
 	// IIIF manifest
 	//
-	// Minted rather than looked up: unlike an item, whose manifest is Internet Archive's and
-	// is named after the barcode, a part has no manifest anywhere to point at. This URI is
-	// the one sparql2iiif.php builds a part manifest under, and saying so in the graph is
-	// what lets a consumer discover that the part has one at all.
-	$manifest = $config['bhl'] . '/part/' . $PartID . '/manifest';
+	$manifest = $config['ld4bhl'] . '/part/' . $PartID . '/manifest';
 	create_encoding_triples($triples, $part->id, $manifest, "application/ld+json");
 
 	// PDF as encoding
@@ -1172,7 +1277,18 @@ function get_part($PartID)
 		$triples[] = [$s, $p, $o];			
 	}
 	
-	// note that we need DataFeedItems as to be list elements because
+	// first page in item gives us the thumbnail
+	// remember that 1st page is $pages[1] because we are following SequenceOrder
+	$thumbnailUrl = get_page_thumbnail($pages[1]);
+	if ($thumbnailUrl != '')
+	{
+		$s = $part->id;
+		$p = 'https://schema.org/thumbnailUrl';		
+		$o = $thumbnailUrl;
+		$triples[] = [$s, $p, $o];			
+	}
+	
+	// note that we need DataFeedItems to be list elements because
 	// the position of a page in the list is a property of the list element,
 	// not the page, otherwise we end up with multiple positions assigned to
 	// the same page (e.g., if it occurs in multiple parts).
@@ -1371,15 +1487,26 @@ if (0)
 
 }
 
-if (0)
+if (1)
 {
 	$TitleID = 57881;
 	$TitleID = 149317;
 	$TitleID = 40366;
+	$TitleID = 68672;
+	$TitleID = 144642;
+	
+	$TitleID = 3882; // Novitates zoologicae
+	
+	$TitleID = 9243; // Catalogue of the Lepidoptera Phalænæ in the British museum
+	
+	$TitleID = 9054; // Afrikanische Nachtschlmetterlinge
+	
+	$TitleID = 15774; // The Annals and magazine of natural history
+	
+	$TitleID = 11516; // Transactions of the Entomological Society of London
 	
 	$title = get_title($TitleID);
 	
-	/*
 	foreach ($title->items as $ItemID => $position)
 	{
 		echo "\n\n";
@@ -1391,8 +1518,21 @@ if (0)
 		get_item_pages($ItemID);
 		
 		echo "\n\n";
+			
+		// get barcode(s), may be multiple if we have a virtual item
+		// barcodes (Internet Archive identifiers) enable us to create AWS URLs for images
+		$barcodes = get_item_ia($ItemID);	
+		foreach ($barcodes as $ia)
+		{	
+			echo dump_triples(canvas_triples($ia));
+		}		
+		
+		foreach (get_item_parts($ItemID) as $PartID)
+		{
+			get_part($PartID);
+		}
+		
 	}
-	*/
 	
 }
 
@@ -1413,7 +1553,7 @@ if (0)
 	
 }	
 
-if (1)
+if (0)
 {
 	$ItemID = 223011;
 	$ia = 'journalofarach3832010amer';
@@ -1433,7 +1573,9 @@ if (1)
 	
 	//$ItemID = 19421; // Magazine of natural history and journal of zoology, botany, mineralog v. 1
 	
-	$ItemID = 341164; // virtual item (Pensoft)
+	//$ItemID = 341164; // virtual item (Pensoft)
+	
+	//$ItemID = 281611;
 	
 	// get details for this item
 	get_item($ItemID);
@@ -1463,6 +1605,17 @@ if (1)
 		echo "\n\n";
 	}
 	
+}
+
+// get item thumbnails
+if (0)
+{
+	$items = [];
+	
+	foreach ($items as $ItemID)
+	{
+		get_item_thumbnails($ItemID);
+	}
 }
 
 // BHL Lite -- every title and item in the CouchDB view, canvases included.
